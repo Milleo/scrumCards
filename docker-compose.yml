@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+    frontend:
+        build:
+            context: .
+            dockerfile: ./frontend/Dockerfile
+        stdin_open: true
+        ports:
+            - "8080:3000"
+        volumes:
+            - /app/node_modules
+            - ./frontend:/app/
+        depends_on:
+            - backend
+        links:
+            - backend
+    backend:
+        build:
+            context: .
+            dockerfile: ./backend/Dockerfile.dev
+        ports:
+            - "1337:3000"
+        volumes:
+            - /app/node_modules
+            - ./backend:/app/
+        depends_on:
+            - database
+        links:
+            - database
+        entrypoint: ["/bin/bash", "/app/entrypoint.sh"]
+        environment:
+            - DB_HOST=database
+            - DB_USERNAME=root
+            - DB_PASSWORD=123
+            - DB_DATABASE=scrum_cards
+            - DB_PORT=3306
+            - WAIT_HOSTS=database:3306
+    database:
+        image: mysql:5.7
+        ports:
+            - 3306:3306
+        environment:
+          MYSQL_ROOT_PASSWORD: 123
+          MYSQL_DATABASE: scrum_cards
+          MYSQL_USER: scrum_cards_user_1
+          MYSQL_PASSWORD: 123

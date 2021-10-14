@@ -1,0 +1,11 @@
+#theme-switch{
+    height: 24px;
+    padding: 8px;
+    width: 36px;
+}
+#theme-switch.form-check-input{
+    background-color: #555555;
+}
+#theme-switch.form-check-input:checked{
+    background-color: #CCCCCC;
+}

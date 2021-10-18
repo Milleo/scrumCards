@@ -5,8 +5,6 @@ services:
             context: .
             dockerfile: ./frontend/Dockerfile
         stdin_open: true
-        ports:
-            - "8080:3000"
         volumes:
             - /app/node_modules
             - ./frontend:/app/
@@ -18,29 +16,47 @@ services:
         build:
             context: .
             dockerfile: ./backend/Dockerfile.dev
-        ports:
-            - "1337:3000"
         volumes:
-            - /app/node_modules
-            - ./backend:/app/
+            - /app/node_modules/
+            - ./backend/:/app/
+        environment:
+            - PORT=3001
         depends_on:
-            - database
+            database:
+                condition: service_healthy
         links:
             - database
         entrypoint: ["/bin/bash", "/app/entrypoint.sh"]
+        restart: "always"
         environment:
             - DB_HOST=database
             - DB_USERNAME=root
             - DB_PASSWORD=123
             - DB_DATABASE=scrum_cards
             - DB_PORT=3306
-            - WAIT_HOSTS=database:3306
+            - WAIT_HOSTS=database
     database:
         image: mysql:5.7
-        ports:
-            - 3306:3306
+        command: --init-file /data/application/init.sql
+        volumes:
+            - ./database/init.sql:/data/application/init.sql
         environment:
-          MYSQL_ROOT_PASSWORD: 123
-          MYSQL_DATABASE: scrum_cards
-          MYSQL_USER: scrum_cards_user_1
-          MYSQL_PASSWORD: 123
+            MYSQL_ROOT_PASSWORD: 123
+            MYSQL_DATABASE: database
+            MYSQL_USER: scrum_cards_user_1
+            MYSQL_PASSWORD: 123
+        healthcheck:
+            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", '-u root', '-p123']
+            timeout: 20s
+            retries: 10
+    nginx:
+        depends_on:
+            - backend
+            - frontend
+        build:
+            dockerfile: Dockerfile
+            context: ./nginx
+        ports:
+            - "80:80"
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf

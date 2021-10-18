@@ -4,10 +4,6 @@ const db = require("../database/models");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  
-  db.Room.findAll().then((results) => {
-    console.log(results);
-  });
   res.send("OK");
 });
 

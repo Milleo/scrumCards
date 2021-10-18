@@ -1,14 +1,18 @@
+const Room = require("./Room");
+
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define("User", {
-        uuid: DataTypes.UUID,
+        uuid: { type: DataTypes.UUID, defaultValue: sequelize.UUIDV4 },
         name: DataTypes.STRING(50),
-        admin: DataTypes.INTEGER.UNSIGNED,
-        role: DataTypes.ENUM('player', 'spectator'),
     }, {
         tableName: 'users',
         timestamps: true,
         paranoid: true
     });
+
+    User.associeate = (models) => {
+        User.belongsToMany(models.Room, { through: "users_rooms", as: "rooms", foreignKey: "id_user" });
+    }
 
     return User;
 }

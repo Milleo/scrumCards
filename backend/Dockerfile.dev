@@ -6,4 +6,4 @@ RUN npm install -g nodemon --no-optional
 RUN npm install -g sequelize-cli
 RUN sequelize init
 COPY ./backend /app
-CMD [ "npm", "start" ]
+CMD [ "npm", "start.dev" ]

@@ -1,3 +1,4 @@
 npm install
-sequelize db:migrate
-npm start
+sequelize-cli db:migrate:undo:all
+sequelize-cli db:migrate
+nodemon -L

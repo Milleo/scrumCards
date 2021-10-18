@@ -12,6 +12,8 @@ import Main from "./layouts/Main";
 import Room from "./layouts/Room";
 import NoMatch from "./layouts/NoMatch";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { CookiesProvider } from 'react-cookie';
+
 
 function App(){
     const [theme, setTheme] = useState('light');
@@ -31,20 +33,22 @@ function App(){
 
     return (
         <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
-            <GlobalStyles />
-            <IntlProvider messages={translations} locale={language} defaultLocale="en">
-                <Router>
-                    <Header selectedLanguage={language} onChangeLang={ onChangeLang } toggleTheme={ toggleTheme } />
-                    <Container fluid>
-                        <Switch>
-                            <Route exact path="/"><Main /></Route>
-                            <Route path="/newRoom"><CreateRoom /></Route>
-                            <Route path="/room/:roomUUID"><Room /></Route>
-                            <Route path="*"><NoMatch /></Route>
-                        </Switch>
-                    </Container>
-                </Router>
-            </IntlProvider>
+            <CookiesProvider>
+                <GlobalStyles />
+                <IntlProvider messages={translations} locale={language} defaultLocale="en">
+                    <Router>
+                        <Header selectedLanguage={language} onChangeLang={ onChangeLang } toggleTheme={ toggleTheme } />
+                        <Container fluid>
+                            <Switch>
+                                <Route exact path="/"><Main /></Route>
+                                <Route path="/newRoom"><CreateRoom /></Route>
+                                <Route path="/room/:roomURI"><Room /></Route>
+                                <Route path="*"><NoMatch /></Route>
+                            </Switch>
+                        </Container>
+                    </Router>
+                </IntlProvider>
+            </CookiesProvider>
         </ThemeProvider>
     );
 }

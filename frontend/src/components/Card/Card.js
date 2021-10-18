@@ -1,12 +1,12 @@
 import "./Card.css";
 
 function Card(){
-    return (<div class="card">
-    <div class="card-inner">
-      <div class="card-front">
+    return (<div className="card">
+    <div className="card-inner">
+      <div className="card-front">
         
       </div>
-      <div class="card-back">
+      <div className="card-back">
         13
       </div>
     </div>

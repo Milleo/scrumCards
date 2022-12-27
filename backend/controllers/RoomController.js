@@ -23,7 +23,6 @@ const RoomController = {
         const { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner } = req.body;
 
         let uri = faker.random.alphaNumeric(8);
-        console.log(owner);
         db.User.findOne({ where: { name: owner } }).then(async (ownerObj) => {
             while(true){
                 const uriRepeated = await db.Room.findOne({ where: { uri: uri }});

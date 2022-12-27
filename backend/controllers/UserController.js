@@ -20,20 +20,17 @@ const UserController = {
     show: (req,res) => {
         res.send("OK");
     },
-    create: async (req,res) => {
+    create: (req,res) => {
         const { userName } = req.body;
-        try{
-            db.User.create({
-                name: userName,
-                uuid: uuidv4(),
-            });
+        db.User.create({
+            name: userName,
+            uuid: uuidv4(),
+        }).then(() => {
             res.sendStatus(200);
-        }catch(err){
+        }).catch((err) => {
             console.log(err);
             res.sendStatus(503);
-        }
-
-        
+        });
     },
     update: (req,res) => {
         res.send("OK");

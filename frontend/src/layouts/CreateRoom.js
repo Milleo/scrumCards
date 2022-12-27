@@ -1,7 +1,7 @@
 import React, { useState, Fragment, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Spinner from "react-bootstrap/Spinner";
+import Loading from "../components/Loading";
 import { FormattedMessage, useIntl } from "react-intl";
 import axios from "axios";
 import { useCookies } from 'react-cookie';
@@ -31,6 +31,7 @@ function CreateRoom(){
             const userName = `guest_${userNameSufix}`;
             axios.post("/api/users", { userName: userName }).then((err, res) => {
                 setScrumCardsCookie("user_guest_name", userName);
+            }).finally(() => {
                 setLoading(false);
             })
         }else{
@@ -39,8 +40,8 @@ function CreateRoom(){
                 setLoading(false);
             }).catch(() => {
                 removeScrumCardsCookie("user_guest_name");
+            }).finally(() => {
                 setLoading(false);
-                setLoading(true);
             })
             
         }
@@ -54,14 +55,16 @@ function CreateRoom(){
         axios.post("/api/rooms", { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner: scrumCardsCookie['user_guest_name'] }).then((res) => {
             const roomUri = res.data;
             history.push(`/room/${roomUri}`)
-        });
+        }).catch(() => {
+            history.push(`/error`)
+        }).finally(() => {
+            setLoading(false);
+        })
     }
 
     return (
         <Fragment>
-            { loading && <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
-            </Spinner> }
+            { loading && <Loading /> }
 
             { !loading && <Form onSubmit={ handleSubmit }>
                 <Form.Group>

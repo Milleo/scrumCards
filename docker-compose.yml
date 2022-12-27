@@ -40,10 +40,10 @@ services:
         volumes:
             - ./database/init.sql:/data/application/init.sql
         environment:
-            MYSQL_ROOT_PASSWORD: 123
-            MYSQL_DATABASE: database
+            MYSQL_DATABASE: scrum_cards
             MYSQL_USER: scrum_cards_user_1
             MYSQL_PASSWORD: 123
+            MYSQL_PORT: 3306
         healthcheck:
             test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", '-uscrum_cards_user_1', '-p123']
             timeout: 20s

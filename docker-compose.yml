@@ -50,7 +50,6 @@ services:
             retries: 10
     nginx:
         depends_on:
-            - backend
             - frontend
         build:
             dockerfile: Dockerfile

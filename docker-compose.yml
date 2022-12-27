@@ -36,10 +36,10 @@ services:
             - WAIT_HOSTS=database
     database:
         image: mysql:5.7
-        command: --init-file /data/application/init.sql
         volumes:
-            - ./database/init.sql:/data/application/init.sql
+            - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
         environment:
+            MYSQL_ROOT_PASSWORD: 123
             MYSQL_DATABASE: scrum_cards
             MYSQL_USER: scrum_cards_user_1
             MYSQL_PASSWORD: 123

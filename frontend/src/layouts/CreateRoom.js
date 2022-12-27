@@ -25,19 +25,26 @@ function CreateRoom(){
     const handleChangeUnknownCard = (e) => setIncludeUnknownCard(e.target.checked); 
     const handleChangeCoffeeCard = (e) => setIncludeCoffeeCard(e.target.checked);
 
+    const createGuestUser = () => {
+        const userNameSufix = faker.random.alphaNumeric(8);
+        const userName = `guest_${userNameSufix}`;
+        axios.post("/api/users/", { userName: userName }).then((err, res) => {
+            setScrumCardsCookie("user_guest_name", userName);
+        }).finally(() => {
+            setLoading(false);
+        })
+    }
+
     useEffect(() => {
         if(!("user_guest_name" in scrumCardsCookie)){
-            const userNameSufix = faker.random.alphaNumeric(8);
-            const userName = `guest_${userNameSufix}`;
-            axios.post("/api/users", { userName: userName }).then((err, res) => {
-                setScrumCardsCookie("user_guest_name", userName);
-            }).finally(() => {
-                setLoading(false);
-            })
+            createGuestUser();
         }else{
             const userName = scrumCardsCookie['user_guest_name'];
-            axios.get("/api/users/", { name: userName }).then((err, res) => {
-                setLoading(false);
+            axios.get("/api/users/", { name: userName }).then((data) => {
+                if(data == undefined){
+                    removeScrumCardsCookie("user_guest_name");    
+                    createGuestUser();
+                }
             }).catch(() => {
                 removeScrumCardsCookie("user_guest_name");
             }).finally(() => {
@@ -51,8 +58,8 @@ function CreateRoom(){
         e.preventDefault();
 
         setLoading(true);
-
-        axios.post("/api/rooms", { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner: scrumCardsCookie['user_guest_name'] }).then((res) => {
+        const userName = scrumCardsCookie['user_guest_name'];
+        axios.post("/api/rooms/", { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner: userName }).then((res) => {
             const roomUri = res.data;
             history.push(`/room/${roomUri}`)
         }).catch(() => {

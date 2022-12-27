@@ -19,8 +19,6 @@ services:
         volumes:
             - /app/node_modules/
             - ./backend/:/app/
-        environment:
-            - PORT=3001
         depends_on:
             database:
                 condition: service_healthy
@@ -29,8 +27,9 @@ services:
         entrypoint: ["/bin/bash", "/app/entrypoint.sh"]
         restart: "always"
         environment:
+            - PORT=3001
             - DB_HOST=database
-            - DB_USERNAME=root
+            - DB_USERNAME=scrum_cards_user_1
             - DB_PASSWORD=123
             - DB_DATABASE=scrum_cards
             - DB_PORT=3306
@@ -46,7 +45,7 @@ services:
             MYSQL_USER: scrum_cards_user_1
             MYSQL_PASSWORD: 123
         healthcheck:
-            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", '-u root', '-p123']
+            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", '-uscrum_cards_user_1', '-p123']
             timeout: 20s
             retries: 10
     nginx:

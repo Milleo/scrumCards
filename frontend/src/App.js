@@ -27,8 +27,8 @@ function App(){
         }
     }
 
-    const onChangeLang = (e, event) => {
-        setLanguage(event.target.dataset.country);
+    const onChangeLang = (e, { target }) => {
+        setLanguage(target.dataset.country);
     }
 
     return (

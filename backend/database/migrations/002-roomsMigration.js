@@ -6,7 +6,7 @@ module.exports = {
         name: { type: Sequelize.DataTypes.STRING(50), allowNull: false },
         includeUnknownCard: { type: Sequelize.DataTypes.BOOLEAN, alloNull: false, defaultValue: 0 },
         includeCoffeeCard: { type: Sequelize.DataTypes.BOOLEAN, alloNull: false, defaultValue: 0 },
-        maxValue: { type: Sequelize.INTEGER.UNSIGNED, allowNull: false, defaultValue: 100 },
+        maxValue: { type: Sequelize.TINYINT.UNSIGNED, allowNull: false, defaultValue: 21 },
         owner: { type: Sequelize.DataTypes.INTEGER.UNSIGNED, allowNull: false, references: { model: { tableName: "users" }, key: 'id' } },
         uri: { type: Sequelize.DataTypes.STRING(8), allowNull: false, unique: true },
         createdAt: Sequelize.DataTypes.DATE,

@@ -66,4 +66,4 @@ io.on('connection', (socket) => {
     })
 });
 
-module.exports = [server, port];
+module.exports = { server, port, app };

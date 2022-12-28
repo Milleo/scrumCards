@@ -1,5 +1,3 @@
-const Room = require("./Room");
-
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define("User", {
         uuid: { type: DataTypes.UUID, defaultValue: sequelize.UUIDV4 },

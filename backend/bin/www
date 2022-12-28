@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var [server, port] = require('../app');
+var { server, port } = require('../app');
 var debug = require('debug')('backend:server');
 
 

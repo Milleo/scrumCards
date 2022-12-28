@@ -30,8 +30,8 @@ const UserController = {
             return res.status(400).json({ errors: errors.array() });
         }
         const { userName, email, password } = req.body;
-        var salt = bcrypt.genSaltSync(10);
-        var passwdHash = bcrypt.hashSync(password, salt);
+        const salt = bcrypt.genSaltSync(10);
+        const passwdHash = bcrypt.hashSync(password, salt);
 
         db.User.create({
             name: userName,
@@ -56,7 +56,8 @@ const UserController = {
         });
     },
     update: (req,res) => {
-        const { uuid, userName, email } = req.body;
+        const { userName, email } = req.body;
+        const { uuid } = req.params;
         db.User.update({
             name: userName,
             email: email
@@ -67,16 +68,19 @@ const UserController = {
         });
     },
     updatePassword: (req, res) => {
-        const { uuid, password } = req.body;
-        db.User.update({ password: password }, { where: { uuid: uuid }}).then(() => {
+        const { uuid } = req.params;
+        const { password } = req.body;
+        const salt = bcrypt.genSaltSync(10);
+        const passwdHash = bcrypt.hashSync(password, salt);
+        db.User.update({ password: passwdHash }, { where: { uuid: uuid }}).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
             res.send(503, err);
         });
     },
     delete: (req,res) => {
-        const { uuid } = req.body;
-        db.User.delete({ where: { uuid: uuid }}).then(() => {
+        const { uuid } = req.params;
+        db.User.destroy({ where: { uuid: uuid }}).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
             res.send(503, err);

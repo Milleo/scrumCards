@@ -8,22 +8,48 @@ const RoomController = {
             res.send(200, result);
         });
     },
+    join: (req, res) => {
+        const { roomURI } = req.params;
+        const { userUuid, role } = req.body;
+        
+        db.Room.findOne({ where: { uri: roomURI }}).then((roomObj) => {
+            if(roomObj == null){
+                return res.send(404, "Room not found");
+            }
+            db.User.find({ where: { uuid: userUuid }}).then((userObj) => {
+                if(roomObj == null){
+                    return res.send(404, "Room not found");
+                }
+
+                db.UsersRoom.crete({
+                    banned: false,
+                    id_user: userObj.id,
+                    id_room: roomObj.id,
+                    role: role
+                })
+                .then(() => res.send(200))
+                .catch((err) => res.send(503, err));
+            }).catch((err) => res.send(503, err));
+        }).catch((err) => res.send(503, err));
+        
+    },
     get: (req,res) => {
         const { uri } = req.params;
         
         db.Room.findOne({ where: { uri: uri } }).then((result) => {
-            if(result == null) res.send(404);
-            res.send(200, result);
+            if(result == null)
+                res.send(404);
+            else
+                res.send(200, result);
         }).catch((err) => {
-            console.log(err);
-            res.sendStatus(503);
+            res.send(503,err);
         })
     },
-    create: async (req,res) => {
+    create: (req,res) => {
         const { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner } = req.body;
 
         let uri = faker.random.alphaNumeric(8);
-        db.User.findOne({ where: { name: owner } }).then(async (ownerObj) => {
+        db.User.findOne({ where: { uuid: owner } }).then(async (ownerObj) => {
             while(true){
                 const uriRepeated = await db.Room.findOne({ where: { uri: uri }});
                 if(uriRepeated != null)
@@ -41,26 +67,26 @@ const RoomController = {
                 owner: ownerObj.id,
                 uri: uri
             }).then(() => {
-                console.log(uri);
                 res.send(200, uri);
             }).catch((err) => {
-                console.log(err);
-                res.sendStatus(503);    
+                res.send(503, err); 
             })
         }).catch((err) => {
-            console.log(err);
-            res.sendStatus(503);
+            res.send(503, err);
         });
     },
     update: (req,res) => {
         const { uuid } = req.params;
-        const { roomName } = req.body;
+        const { roomName, includeCoffeeCard, includeUnknownCard } = req.body;
 
-        db.Room.update({ name: roomName }, { where: { uuid: uuid }}).then(() => {
+        db.Room.update({
+            name: roomName,
+            includeCoffeeCard: includeCoffeeCard,
+            includeUnknownCard: includeUnknownCard,
+        }, { where: { uuid: uuid }}).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
-            console.log(err);
-            res.sendStatus(503);
+            res.send(503, err);
         })
     },
     delete: (req,res) => {
@@ -69,8 +95,7 @@ const RoomController = {
         db.Room.destroy({ where: { uuid: uuid } }).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
-            console.log(err);
-            res.sendStatus(503);
+            res.send(503, err);
         })
     }
 }

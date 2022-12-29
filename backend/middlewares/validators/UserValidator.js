@@ -16,7 +16,7 @@ const UserValidator = {
             isEmail: { bail: true },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { email: value }})
+                    return db.User.findOne({ where: { email: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("Email already signed");
@@ -29,7 +29,7 @@ const UserValidator = {
             exists: { errorMessage: "User name is required" },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { name: value }})
+                    return db.User.findOne({ where: { name: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("User name already taken");
@@ -44,7 +44,7 @@ const UserValidator = {
             exists: { errorMessage: "User name is required" },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { name: value }})
+                    return db.User.findOne({ where: { name: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("User name already taken");
@@ -59,7 +59,7 @@ const UserValidator = {
             isEmail: { bail: true },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { email: value }})
+                    return db.User.findOne({ where: { email: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("Email already signed");
@@ -72,7 +72,7 @@ const UserValidator = {
             exists: { errorMessage: "User name is required" },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { name: value }})
+                    return db.User.findOne({ where: { name: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("User name already taken");

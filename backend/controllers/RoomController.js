@@ -10,15 +10,15 @@ const RoomController = {
     },
     join: (req, res) => {
         const { roomURI } = req.params;
-        const { userUuid, role } = req.body;
-        
+        const { userUUID, role } = req.body;
+        console.log(roomURI);
         db.Room.findOne({ where: { uri: roomURI }}).then((roomObj) => {
             if(roomObj == null){
-                return res.send(404, "Room not found");
+                return res.status(404).send("Room not found");
             }
-            db.User.find({ where: { uuid: userUuid }}).then((userObj) => {
+            db.User.find({ where: { uuid: userUUID }}).then((userObj) => {
                 if(roomObj == null){
-                    return res.send(404, "Room not found");
+                    return res.status(404).send("Room not found");
                 }
 
                 db.UsersRoom.crete({
@@ -27,10 +27,10 @@ const RoomController = {
                     id_room: roomObj.id,
                     role: role
                 })
-                .then(() => res.send(200))
-                .catch((err) => res.send(503, err));
-            }).catch((err) => res.send(503, err));
-        }).catch((err) => res.send(503, err));
+                .then(() => res.status(200))
+                .catch((err) => res.status(503).send(err));
+            }).catch((err) => res.status(503).send(err));
+        }).catch((err) => res.status(503).send(err));
         
     },
     get: (req,res) => {
@@ -47,8 +47,8 @@ const RoomController = {
     },
     create: (req,res) => {
         const { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner } = req.body;
-
         let uri = faker.random.alphaNumeric(8);
+
         db.User.findOne({ where: { uuid: owner } }).then(async (ownerObj) => {
             while(true){
                 const uriRepeated = await db.Room.findOne({ where: { uri: uri }});
@@ -58,21 +58,22 @@ const RoomController = {
                     break;
             }
 
+            const roomUUID = uuidv4();
             db.Room.create({
                 name: roomName,
                 maxValue: maxValue,
-                uuid: uuidv4(),
+                uuid: roomUUID,
                 includeCoffeeCard: includeCoffeeCard,
                 includeUnknownCard: includeUnknownCard,
                 owner: ownerObj.id,
                 uri: uri
             }).then(() => {
-                res.send(200, uri);
+                res.send(200, { uri, uuid: roomUUID });
             }).catch((err) => {
-                res.send(503, err); 
+                res.status(503).send(err); 
             })
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         });
     },
     update: (req,res) => {
@@ -84,18 +85,18 @@ const RoomController = {
             includeCoffeeCard: includeCoffeeCard,
             includeUnknownCard: includeUnknownCard,
         }, { where: { uuid: uuid }}).then(() => {
-            res.sendStatus(200);
+            res.status(200);
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         })
     },
     delete: (req,res) => {
         const { uuid } = req.params;
 
         db.Room.destroy({ where: { uuid: uuid } }).then(() => {
-            res.sendStatus(200);
+            res.status(200);
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         })
     }
 }

@@ -46,11 +46,12 @@ const UserController = {
     },
     createGuest: (req,res) => {
         const { userName } = req.body;
+        const userUUID = uuidv4();
         db.User.create({
             name: userName,
-            uuid: uuidv4(),
+            uuid: userUUID,
         }).then(() => {
-            res.sendStatus(200);
+            res.status(200).send({ uuid: userUUID });
         }).catch((err) => {
             res.send(503, err);
         });

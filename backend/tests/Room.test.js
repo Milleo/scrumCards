@@ -6,6 +6,7 @@ describe("Rooms endpoints", () => {
     let roomUUID = null;
     let roomURI = null;
     let ownerJWT = null;
+    let playersInfo = [];
     const roomPayload = {
         name: "Test room",
         maxValue: 21,
@@ -54,6 +55,8 @@ describe("Rooms endpoints", () => {
         for(let i = 1; i <= PLAYERS_QTY; i++){
             const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "player_" + i });
             const playerJWT = responseCreateGuest.header["x-access-token"];
+            const playerUUID = responseCreateGuest.body.uuid;
+            playersInfo.push({ jwt: playerJWT, uuid: playerUUID });
 
             const responseJoin = await request(app).get(`/rooms/${roomURI}`).set("Authorization", playerJWT).send({ role: "player" });
 
@@ -61,21 +64,15 @@ describe("Rooms endpoints", () => {
         }
     });
     it("Ban user from room", async () => {
-        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
-        const playerUUID = responseCreateGuest.body.uuid;
+        const playerUUID = playersInfo[0].uuid;
 
         const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", ownerJWT);
         expect(responseBan.statusCode).toBe(200);
     });
     it("Banned user tries to join room", async () => {
-        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
-        const playerUUID = responseCreateGuest.body.uuid;
-        const playerJWT = responseCreateGuest.header["x-access-token"];
-
-        // Player joins the room
-        await request(app).get(`/rooms/${roomURI}`).send({ role: "player" }).set("Authorization", playerJWT);
-
         // Owner bans the player
+        const playerJWT = playersInfo[1].jwt;
+        const playerUUID = playersInfo[1].uuid;
         await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", ownerJWT);
 
         // Player tries to return
@@ -83,8 +80,7 @@ describe("Rooms endpoints", () => {
         expect(respBanned.statusCode).toBe(401);
     });
     it("Not owner tries to update room", async () => {
-        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
-        const playerJWT = responseCreateGuest.header["x-access-token"];
+        const playerJWT = playersInfo[2].jwt;
 
         const updatePayload = {
             name: "Other name of the room",
@@ -96,9 +92,8 @@ describe("Rooms endpoints", () => {
         expect(responseRoomUpdate.statusCode).toBe(401);
     });
     it("Not owner tries to ban user from room", async () => {
-        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "fakeOwner" });
-        const playerJWT = responseCreateGuest.header["x-access-token"];
-        const playerUUID = responseCreateGuest.body.uuid;
+        const playerJWT = playersInfo[3].jwt;
+        const playerUUID = playersInfo[4].uuid;
 
         const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", playerJWT);
         expect(responseBan.statusCode).toBe(403);

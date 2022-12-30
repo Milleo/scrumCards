@@ -10,12 +10,20 @@ describe("User endpoints", () => {
         email: "test1@test.com",
         password: "12345678"
     }
+
+    beforeAll(async () => {
+        await db.sequelize.sync({ force: true });
+    });
     it("List Users", async () => {
         const response = await request(app).get("/users")
         expect(response.statusCode).toBe(200);
     });
-    it("Create new User", async () => {
+    it("Create new user", async () => {
         const response = await request(app).post("/users").send(testPayload);
+        expect(response.statusCode).toBe(200);
+    });
+    it("Create new guest user", async () => {
+        const response = await request(app).post("/users/guest").send({ userName: "Guest_user_123"});
         expect(response.statusCode).toBe(200);
     });
     it("Try to create user with same e-mail", async () => {
@@ -46,8 +54,7 @@ describe("User endpoints", () => {
         expect(response.statusCode).toBe(404);
     });
     afterAll(async () => {
-        await new Promise(resolve => setTimeout(() => resolve(), 2000));
-        db.User.destroy({ where: { uuid: userUUID }, force: true });
-    })
+        await db.sequelize.close();
+    });
 });
 

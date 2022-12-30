@@ -3,7 +3,6 @@ const { app } = require("../app");
 const db = require('../database/models');
 
 describe("Rooms endpoints", () => {
-    let ownerUUID = null;
     let roomUUID = null;
     let roomURI = null;
     let ownerJWT = null;
@@ -40,7 +39,7 @@ describe("Rooms endpoints", () => {
         const responseRoomUpdate = await request(app)
             .put(`/rooms/${roomUUID}`)
             .set("Authorization", ownerJWT)
-            .send({ owner: ownerUUID, ...updatePayload });
+            .send(updatePayload);
         expect(responseRoomUpdate.statusCode).toBe(200);
 
         const resCheckRoom = await db.Room.findOne({ where: { uuid: roomUUID } });
@@ -62,7 +61,7 @@ describe("Rooms endpoints", () => {
         }
     });
     it("Ban user from room", async () => {
-        const responseCreateGuest = await request(app).post("/users/guest").set("Authorization", ownerJWT).send({ userName: "inapropriateUser" });
+        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
         const playerUUID = responseCreateGuest.body.uuid;
 
         const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", ownerJWT);
@@ -96,7 +95,15 @@ describe("Rooms endpoints", () => {
         const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).set("Authorization", playerJWT).send(updatePayload);
         expect(responseRoomUpdate.statusCode).toBe(401);
     });
+    it("Not owner tries to ban user from room", async () => {
+        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "fakeOwner" });
+        const playerJWT = responseCreateGuest.header["x-access-token"];
+        const playerUUID = responseCreateGuest.body.uuid;
+
+        const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", playerJWT);
+        expect(responseBan.statusCode).toBe(403);
+    });
     afterAll(async () => {
         await db.sequelize.close();
-    })
+    });
 });

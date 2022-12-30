@@ -45,13 +45,12 @@ const RoomController = {
     banUser: async (req, res) => {
         const { uri, userUUID } = req.params;
         const owner = req.userInfo;
-
         const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
         
-        db.Room.findOne({ where: { uri: uri, owner: ownerObj.id }}).then((roomObj) => {
-            if(roomObj == null){
-                return res.status(404).send("Room not found");
-            }
+        db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
+            if(roomObj.owner != ownerObj.id) return res.sendStatus(403);
+            if(roomObj == null) return res.status(404).send("Room not found");
+
             db.User.findOne({ where: { uuid: userUUID }}).then((userObj) => {
                 if(userObj == null){
                     return res.status(404).send("User not found");

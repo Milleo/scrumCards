@@ -7,18 +7,18 @@ const { v4: uuidv4 } = require('uuid');
 const UserController = {
     list: (req,res) => {
         db.User.findAll({ attributes: ["uuid", "name", "email" ]}).then((result) => {
-            res.send(200, result);
+            res.status(200).send(result);
         });
     },
     get: (req,res) => {
         const { name } = req.params;
         db.User.findOne({ where: { name: name }, attributes: ["uuid", "name", "email" ]}).then((result) => {
             if(result == null)
-                return res.send(404);
+                return res.sendStatus(404);
 
-            res.send(200, result);
+            res.status(200).send(result);
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         })
     },
     show: (req,res) => {
@@ -27,7 +27,7 @@ const UserController = {
     create: (req,res) => {
         const errors = validationResult(req);
         if(!errors.isEmpty()){
-            return res.status(400).json({ errors: errors.array() });
+            return res.sendStatus(400).send({ errors: errors.array() });
         }
         const { userName, email, password } = req.body;
         const salt = bcrypt.genSaltSync(10);
@@ -41,7 +41,7 @@ const UserController = {
         }).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         });
     },
     createGuest: (req,res) => {
@@ -53,7 +53,7 @@ const UserController = {
         }).then(() => {
             res.status(200).send({ uuid: userUUID });
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         });
     },
     update: (req,res) => {
@@ -65,7 +65,7 @@ const UserController = {
         }, { where: { uuid: uuid }}).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         });
     },
     updatePassword: (req, res) => {
@@ -76,7 +76,7 @@ const UserController = {
         db.User.update({ password: passwdHash }, { where: { uuid: uuid }}).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         });
     },
     delete: (req,res) => {
@@ -84,7 +84,7 @@ const UserController = {
         db.User.destroy({ where: { uuid: uuid }}).then(() => {
             res.sendStatus(200);
         }).catch((err) => {
-            res.send(503, err);
+            res.status(503).send(err);
         });
     }
 }

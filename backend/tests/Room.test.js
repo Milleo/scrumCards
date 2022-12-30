@@ -52,6 +52,22 @@ describe("Rooms endpoints", () => {
             expect(responseJoin.statusCode).toBe(200);
         }
     });
+    it("Ban user from room", async () => {
+        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
+        const playerUUID = responseCreateGuest.body.uuid;
+
+        const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`);
+        expect(responseBan.statusCode).toBe(200);
+    });
+    it("Banned user tries to join room", async () => {
+        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
+        const playerUUID = responseCreateGuest.body.uuid;
+
+        await request(app).get(`/rooms/${roomURI}`).send({ userUUID: playerUUID, role: "player" });
+        await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`);
+        const respBanned = await request(app).get(`/rooms/${roomURI}`).send({ userUUID: playerUUID, role: "player" });
+        expect(respBanned.statusCode).toBe(401);
+    })
     afterAll(async () => {
         await db.sequelize.close();
     })

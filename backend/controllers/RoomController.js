@@ -16,22 +16,53 @@ const RoomController = {
             if(roomObj == null){
                 return res.status(404).send("Room not found");
             }
+            db.User.findOne({ where: { uuid: userUUID }}).then(async (userObj) => {
+                if(userObj == null){
+                    return res.status(404).send("Room not found");
+                }
+
+                const joinData = await db.UsersRoom.findOne({ where: { id_user: userObj.id, id_room: roomObj.id }});
+                if(joinData == null){
+                    db.UsersRoom.create({
+                        banned: false,
+                        id_user: userObj.id,
+                        id_room: roomObj.id,
+                        role: role
+                    })
+                    .then(() => res.send(200))
+                    .catch((err) => res.status(503).send(err));
+                }else{
+                    if(joinData.banned){
+                        res.send(401);
+                    }
+                }
+                
+            }).catch((err) => res.status(503).send(err))
+        }).catch((err) => res.status(503).send(err));
+        
+    },
+    banUser: (req, res) => {
+        const { uri, userUUID } = req.params;
+        db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
+            if(roomObj == null){
+                return res.status(404).send("Room not found");
+            }
             db.User.findOne({ where: { uuid: userUUID }}).then((userObj) => {
                 if(userObj == null){
                     return res.status(404).send("Room not found");
                 }
 
-                db.UsersRoom.create({
-                    banned: false,
-                    id_user: userObj.id,
-                    id_room: roomObj.id,
-                    role: role
-                })
+                db.UsersRoom.update({
+                    banned: true
+                }, {
+                    where: {
+                        id_user: userObj.id,
+                        id_room: roomObj.id
+                }})
                 .then(() => res.send(200))
                 .catch((err) => res.status(503).send(err));
             }).catch((err) => res.status(503).send(err))
         }).catch((err) => res.status(503).send(err));
-        
     },
     get: (req,res) => {
         const { uri } = req.params;

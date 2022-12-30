@@ -4,6 +4,7 @@ var router = express.Router();
 
 router.get('/', RoomsController.list);
 router.get("/:uri", RoomsController.join);
+router.get("/:uri/ban/:userUUID", RoomsController.banUser);
 router.post("/", RoomsController.create);
 router.put("/:uuid", RoomsController.update);
 router.delete("/:uuid", RoomsController.delete);

@@ -9,27 +9,27 @@ const RoomController = {
         });
     },
     join: (req, res) => {
-        const { roomURI } = req.params;
+        const { uri } = req.params;
         const { userUUID, role } = req.body;
-        console.log(roomURI);
-        db.Room.findOne({ where: { uri: roomURI }}).then((roomObj) => {
+        
+        db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
             if(roomObj == null){
                 return res.status(404).send("Room not found");
             }
-            db.User.find({ where: { uuid: userUUID }}).then((userObj) => {
-                if(roomObj == null){
+            db.User.findOne({ where: { uuid: userUUID }}).then((userObj) => {
+                if(userObj == null){
                     return res.status(404).send("Room not found");
                 }
 
-                db.UsersRoom.crete({
+                db.UsersRoom.create({
                     banned: false,
                     id_user: userObj.id,
                     id_room: roomObj.id,
                     role: role
                 })
-                .then(() => res.status(200))
+                .then(() => res.send(200))
                 .catch((err) => res.status(503).send(err));
-            }).catch((err) => res.status(503).send(err));
+            }).catch((err) => res.status(503).send(err))
         }).catch((err) => res.status(503).send(err));
         
     },
@@ -85,7 +85,7 @@ const RoomController = {
             includeCoffeeCard: includeCoffeeCard,
             includeUnknownCard: includeUnknownCard,
         }, { where: { uuid: uuid }}).then(() => {
-            res.status(200);
+            res.send(200);
         }).catch((err) => {
             res.status(503).send(err);
         })

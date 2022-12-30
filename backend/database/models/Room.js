@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         uuid: { type: DataTypes.UUID, defaultValue: sequelize.UUIDV4 },
         name: DataTypes.STRING(50),
         owner: DataTypes.INTEGER.UNSIGNED,
+        maxValue:  DataTypes.TINYINT.UNSIGNED,
         includeUnknownCard: DataTypes.BOOLEAN,
         includeCoffeeCard: DataTypes.BOOLEAN,
         uri: DataTypes.STRING(8)

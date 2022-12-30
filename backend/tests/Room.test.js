@@ -7,7 +7,7 @@ describe("Rooms endpoints", () => {
     let roomUUID = null;
     let roomURI = null;
     const roomPayload = {
-        roomName: "Test room",
+        name: "Test room",
         maxValue: 21,
         includeUnknownCard: false,
         includeCoffeeCard: true
@@ -31,14 +31,19 @@ describe("Rooms endpoints", () => {
     });
     it("Update room", async () => {
         const updatePayload = {
-            roomName: "New name of test room",
+            name: "New name of test room",
             maxValue: 100,
             includeCoffeeCard: false,
             includeUnknownCard: true,
-            owner: userUUID
         }
-        const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).send(updatePayload);
+        const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).send({ owner: userUUID, ...updatePayload });
         expect(responseRoomUpdate.statusCode).toBe(200);
+
+        const resCheckRoom = await db.Room.findOne({ where: { uuid: roomUUID } });
+        expect(resCheckRoom.dataValues).toEqual(
+            expect.objectContaining(updatePayload)
+        )
+        
     });
     it("Join multiple players", async () => {
         const PLAYERS_QTY = 12;
@@ -67,7 +72,21 @@ describe("Rooms endpoints", () => {
         await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`);
         const respBanned = await request(app).get(`/rooms/${roomURI}`).send({ userUUID: playerUUID, role: "player" });
         expect(respBanned.statusCode).toBe(401);
-    })
+    });
+    it("Not owner tries to update room", async () => {
+        const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
+        const playerUUID = responseCreateGuest.body.uuid;
+
+        const updatePayload = {
+            name: "Other name of the room",
+            maxValue: 21,
+            includeCoffeeCard: true,
+            includeUnknownCard: true,
+            owner: playerUUID
+        }
+        const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).send(updatePayload);
+        expect(responseRoomUpdate.statusCode).toBe(401);
+    });
     afterAll(async () => {
         await db.sequelize.close();
     })

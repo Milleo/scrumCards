@@ -5,7 +5,7 @@ const faker = require("faker");
 const RoomController = {
     list: (req,res) => {
         db.Room.findAll().then((result) => {
-            res.send(200, result);
+            res.status(200).send(result);
         });
     },
     join: (req, res) => {
@@ -29,11 +29,11 @@ const RoomController = {
                         id_room: roomObj.id,
                         role: role
                     })
-                    .then(() => res.send(200))
+                    .then(() => res.sendStatus(200))
                     .catch((err) => res.status(503).send(err));
                 }else{
                     if(joinData.banned){
-                        res.send(401);
+                        res.sendStatus(401);
                     }
                 }
                 
@@ -52,14 +52,12 @@ const RoomController = {
                     return res.status(404).send("Room not found");
                 }
 
-                db.UsersRoom.update({
-                    banned: true
-                }, {
+                db.UsersRoom.update({ banned: true }, {
                     where: {
                         id_user: userObj.id,
                         id_room: roomObj.id
                 }})
-                .then(() => res.send(200))
+                .then(() => res.sendStatus(200))
                 .catch((err) => res.status(503).send(err));
             }).catch((err) => res.status(503).send(err))
         }).catch((err) => res.status(503).send(err));
@@ -69,15 +67,15 @@ const RoomController = {
         
         db.Room.findOne({ where: { uri: uri } }).then((result) => {
             if(result == null)
-                res.send(404);
+                res.sendStatus(404);
             else
-                res.send(200, result);
+                res.status(200).send(result);
         }).catch((err) => {
-            res.send(503,err);
+            res.status(503).send(err);
         })
     },
     create: (req,res) => {
-        const { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner } = req.body;
+        const { name, maxValue, includeUnknownCard, includeCoffeeCard, owner } = req.body;
         let uri = faker.random.alphaNumeric(8);
 
         db.User.findOne({ where: { uuid: owner } }).then(async (ownerObj) => {
@@ -90,8 +88,9 @@ const RoomController = {
             }
 
             const roomUUID = uuidv4();
+
             db.Room.create({
-                name: roomName,
+                name: name,
                 maxValue: maxValue,
                 uuid: roomUUID,
                 includeCoffeeCard: includeCoffeeCard,
@@ -99,7 +98,7 @@ const RoomController = {
                 owner: ownerObj.id,
                 uri: uri
             }).then(() => {
-                res.send(200, { uri, uuid: roomUUID });
+                res.status(200).send({ uri, uuid: roomUUID });
             }).catch((err) => {
                 res.status(503).send(err); 
             })
@@ -107,19 +106,26 @@ const RoomController = {
             res.status(503).send(err);
         });
     },
-    update: (req,res) => {
+    update: async (req,res) => {
         const { uuid } = req.params;
-        const { roomName, includeCoffeeCard, includeUnknownCard } = req.body;
+        const { name, includeCoffeeCard, includeUnknownCard, maxValue, owner } = req.body;
 
-        db.Room.update({
-            name: roomName,
-            includeCoffeeCard: includeCoffeeCard,
-            includeUnknownCard: includeUnknownCard,
-        }, { where: { uuid: uuid }}).then(() => {
-            res.send(200);
-        }).catch((err) => {
-            res.status(503).send(err);
-        })
+        db.User.findOne({ where: { uuid: owner } }).then(async (ownerObj) => {
+            db.Room.update({
+                name: name,
+                maxValue: maxValue,
+                includeCoffeeCard: includeCoffeeCard,
+                includeUnknownCard: includeUnknownCard,
+            }, { where: { uuid: uuid, owner: ownerObj.id }}).then(([affectedCount]) => {
+                if(affectedCount == 0)
+                    res.sendStatus(401);
+                else
+                    res.sendStatus(200);
+                
+            }).catch((err) => {
+                res.status(503).send(err);
+            })
+        });
     },
     delete: (req,res) => {
         const { uuid } = req.params;

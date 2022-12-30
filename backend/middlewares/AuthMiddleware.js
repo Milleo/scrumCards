@@ -8,7 +8,6 @@ const AuthMiddleware = (req, res, next) => {
             return;
         }
 
-        console.log(userInfo);
         req.userInfo = userInfo;
         next();
     })

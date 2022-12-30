@@ -10,13 +10,14 @@ const RoomController = {
     },
     join: (req, res) => {
         const { uri } = req.params;
-        const { userUUID, role } = req.body;
+        const { role } = req.body;
+        const user = req.userInfo;
         
         db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
             if(roomObj == null){
                 return res.status(404).send("Room not found");
             }
-            db.User.findOne({ where: { uuid: userUUID }}).then(async (userObj) => {
+            db.User.findOne({ where: { uuid: user.uuid }}).then(async (userObj) => {
                 if(userObj == null){
                     return res.status(404).send("Room not found");
                 }
@@ -41,15 +42,19 @@ const RoomController = {
         }).catch((err) => res.status(503).send(err));
         
     },
-    banUser: (req, res) => {
+    banUser: async (req, res) => {
         const { uri, userUUID } = req.params;
-        db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
+        const owner = req.userInfo;
+
+        const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
+        
+        db.Room.findOne({ where: { uri: uri, owner: ownerObj.id }}).then((roomObj) => {
             if(roomObj == null){
                 return res.status(404).send("Room not found");
             }
             db.User.findOne({ where: { uuid: userUUID }}).then((userObj) => {
                 if(userObj == null){
-                    return res.status(404).send("Room not found");
+                    return res.status(404).send("User not found");
                 }
 
                 db.UsersRoom.update({ banned: true }, {
@@ -75,10 +80,11 @@ const RoomController = {
         })
     },
     create: (req,res) => {
-        const { name, maxValue, includeUnknownCard, includeCoffeeCard, owner } = req.body;
+        const { name, maxValue, includeUnknownCard, includeCoffeeCard } = req.body;
+        const owner = req.userInfo;
         let uri = faker.random.alphaNumeric(8);
 
-        db.User.findOne({ where: { uuid: owner } }).then(async (ownerObj) => {
+        db.User.findOne({ where: { uuid: owner.uuid } }).then(async (ownerObj) => {
             while(true){
                 const uriRepeated = await db.Room.findOne({ where: { uri: uri }});
                 if(uriRepeated != null)
@@ -108,9 +114,10 @@ const RoomController = {
     },
     update: async (req,res) => {
         const { uuid } = req.params;
-        const { name, includeCoffeeCard, includeUnknownCard, maxValue, owner } = req.body;
+        const { name, includeCoffeeCard, includeUnknownCard, maxValue } = req.body;
+        const owner = req.userInfo;
 
-        db.User.findOne({ where: { uuid: owner } }).then(async (ownerObj) => {
+        db.User.findOne({ where: { uuid: owner.uuid } }).then(async (ownerObj) => {
             db.Room.update({
                 name: name,
                 maxValue: maxValue,

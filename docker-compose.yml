@@ -27,6 +27,7 @@ services:
         entrypoint: ["/bin/bash", "/app/entrypoint.sh"]
         restart: "always"
         environment:
+            - JWT_SECRET_KEY=someSecretKey123456
             - PORT=3001
             - DB_HOST=database
             - DB_USERNAME=scrum_cards_user_1

@@ -2,6 +2,7 @@ const db = require("../database/models");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const { v4: uuidv4 } = require('uuid');
+const jwt = require("jsonwebtoken");
 
 
 const UserController = {
@@ -21,13 +22,10 @@ const UserController = {
             res.status(503).send(err);
         })
     },
-    show: (req,res) => {
-        res.send("OK");
-    },
     create: (req,res) => {
         const errors = validationResult(req);
         if(!errors.isEmpty()){
-            return res.sendStatus(400).send({ errors: errors.array() });
+            return res.status(400).send({ errors: errors.array() });
         }
         const { userName, email, password } = req.body;
         const salt = bcrypt.genSaltSync(10);
@@ -47,11 +45,21 @@ const UserController = {
     createGuest: (req,res) => {
         const { userName } = req.body;
         const userUUID = uuidv4();
-        db.User.create({
+        const userData = {
             name: userName,
             uuid: userUUID,
-        }).then(() => {
-            res.status(200).send({ uuid: userUUID });
+        };
+
+        db.User.create(userData).then(() => {
+            jwt.sign(userData, process.env.JWT_SECRET_KEY, (err, token) => {
+                if(err){
+                    res.status(500).send("Error generating JSON Web Token");
+                    return;
+                }
+                
+                res.set("x-access-token", token);
+                res.send({ uuid: userUUID });
+            })
         }).catch((err) => {
             res.status(503).send(err);
         });

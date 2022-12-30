@@ -3,9 +3,10 @@ const { app } = require("../app");
 const db = require('../database/models');
 
 describe("Rooms endpoints", () => {
-    let userUUID = null;
+    let ownerUUID = null;
     let roomUUID = null;
     let roomURI = null;
+    let ownerJWT = null;
     const roomPayload = {
         name: "Test room",
         maxValue: 21,
@@ -19,10 +20,14 @@ describe("Rooms endpoints", () => {
     it("Create a room", async () => {
         const response = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
         expect(response.statusCode).toBe(200);
+        ownerJWT = response.header["x-access-token"];
+        console.log(ownerJWT);
 
         const getUserResp = await request(app).get(`/users/roomOwner123`);
-        userUUID = getUserResp.body.uuid;
-        roomPayload.owner = userUUID;
+        ownerUUID = getUserResp.body.uuid;
+        
+        roomPayload.owner = ownerUUID;
+
 
         const responseRoomCreation = await request(app).post("/rooms").send(roomPayload);
         roomUUID = responseRoomCreation.body.uuid;
@@ -36,7 +41,10 @@ describe("Rooms endpoints", () => {
             includeCoffeeCard: false,
             includeUnknownCard: true,
         }
-        const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).send({ owner: userUUID, ...updatePayload });
+        const responseRoomUpdate = await request(app)
+            .put(`/rooms/${roomUUID}`)
+            .send({ owner: ownerUUID, ...updatePayload })
+            .set("Authorization", ownerJWT);
         expect(responseRoomUpdate.statusCode).toBe(200);
 
         const resCheckRoom = await db.Room.findOne({ where: { uuid: roomUUID } });
@@ -52,7 +60,7 @@ describe("Rooms endpoints", () => {
             const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "player_" + i });
             const playerUUID = responseCreateGuest.body.uuid;
 
-            const responseJoin = await request(app).get(`/rooms/${roomURI}`).send({ userUUID: playerUUID, role: "player" });
+            const responseJoin = await request(app).get(`/rooms/${roomURI}`).send({ ownerUUID: playerUUID, role: "player" });
 
             expect(responseJoin.statusCode).toBe(200);
         }
@@ -68,9 +76,9 @@ describe("Rooms endpoints", () => {
         const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "inapropriateUser" });
         const playerUUID = responseCreateGuest.body.uuid;
 
-        await request(app).get(`/rooms/${roomURI}`).send({ userUUID: playerUUID, role: "player" });
+        await request(app).get(`/rooms/${roomURI}`).send({ ownerUUID: playerUUID, role: "player" });
         await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`);
-        const respBanned = await request(app).get(`/rooms/${roomURI}`).send({ userUUID: playerUUID, role: "player" });
+        const respBanned = await request(app).get(`/rooms/${roomURI}`).send({ ownerUUID: playerUUID, role: "player" });
         expect(respBanned.statusCode).toBe(401);
     });
     it("Not owner tries to update room", async () => {

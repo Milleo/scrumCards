@@ -6,6 +6,8 @@ describe("Round endpoints", () => {
     let ownerJWT = null;
     let playerJWT = null;
     let roomURI = null;
+    let roundUUID = null;
+
     const roomPayload = {
         name: "Test room",
         maxValue: 21,
@@ -35,6 +37,8 @@ describe("Round endpoints", () => {
             .set("Authorization", ownerJWT)
             .send(roundInfo);
         expect(newRoundResp.statusCode).toBe(200);
+        expect(newRoundResp.body).toHaveProperty("uuid");
+        roundUUID = newRoundResp.body.uuid;
     });
 
     it("Create round in inexistent room", async () => {
@@ -49,14 +53,33 @@ describe("Round endpoints", () => {
     });
 
     it("Not owner tries to create a new round", async () => {
-        const roundInfo = {
-            title: "New round"
-        }
+        const roundInfo = { title: "New round" }
         const newRoundResp = await request(app)
             .post(`/rooms/${roomURI}/round/start/`)
             .set("Authorization", playerJWT)
             .send(roundInfo);
         expect(newRoundResp.statusCode).toBe(403);
+    });
+
+    it("Update round", async () => {
+        const roundInfo = { title: "Other title" };
+        const roundUpdate = await request(app)
+            .put(`/rooms/${roomURI}/round/${roundUUID}`)
+            .set("Authorization", ownerJWT)
+            .send(roundInfo);
+        expect(roundUpdate.statusCode).toBe(200);
+
+        const checkRound = await db.Round.findOne({ where: { uuid: roundUUID }});
+        expect(checkRound.title).toBe(roundInfo.title);
+    });
+
+    it("Not owner tries to update round", async () => {
+        const roundInfo = { title: "Other title" };
+        const roundUpdate = await request(app)
+            .put(`/rooms/${roomURI}/round/${roundUUID}`)
+            .set("Authorization", playerJWT)
+            .send(roundInfo);
+        expect(roundUpdate.statusCode).toBe(403);
     });
 
     afterAll(async () => {

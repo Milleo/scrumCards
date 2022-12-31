@@ -22,9 +22,9 @@ const RoomController = {
                     return res.status(404).send("Room not found");
                 }
 
-                const joinData = await db.UsersRoom.findOne({ where: { id_user: userObj.id, id_room: roomObj.id }});
+                const joinData = await db.UsersRooms.findOne({ where: { id_user: userObj.id, id_room: roomObj.id }});
                 if(joinData == null){
-                    db.UsersRoom.create({
+                    db.UsersRooms.create({
                         banned: false,
                         id_user: userObj.id,
                         id_room: roomObj.id,
@@ -56,7 +56,7 @@ const RoomController = {
                     return res.status(404).send("User not found");
                 }
 
-                db.UsersRoom.update({ banned: true }, {
+                db.UsersRooms.update({ banned: true }, {
                     where: {
                         id_user: userObj.id,
                         id_room: roomObj.id

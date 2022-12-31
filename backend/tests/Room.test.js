@@ -15,7 +15,9 @@ describe("Rooms endpoints", () => {
     };
 
     beforeAll(async () => {
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
         await db.sequelize.sync({ force: true });
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
     });
     it("Create a room", async () => {
         const response = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
@@ -62,6 +64,8 @@ describe("Rooms endpoints", () => {
 
             expect(responseJoin.statusCode).toBe(200);
         }
+
+        const result = await db.sequelize.query("SELECT * FROM users_rooms");
     });
     it("Ban user from room", async () => {
         const playerUUID = playersInfo[0].uuid;

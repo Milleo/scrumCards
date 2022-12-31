@@ -1,7 +1,6 @@
 const db = require("../database/models");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
-const { v4: uuidv4 } = require('uuid');
 const jwt = require("jsonwebtoken");
 const status = require("http-status");
 
@@ -36,7 +35,6 @@ const UserController = {
             name: userName,
             email: email,
             password: passwdHash,
-            uuid: uuidv4(),
         }).then(() => {
             res.sendStatus(status.OK);
         }).catch((err) => {
@@ -45,21 +43,19 @@ const UserController = {
     },
     createGuest: (req,res) => {
         const { userName } = req.body;
-        const userUUID = uuidv4();
         const userData = {
             name: userName,
-            uuid: userUUID,
         };
 
-        db.User.create(userData).then(() => {
-            jwt.sign(userData, process.env.JWT_SECRET_KEY, (err, token) => {
+        db.User.create(userData).then((data) => {
+            jwt.sign({ uuid: data.uuid, name: data.name }, process.env.JWT_SECRET_KEY, (err, token) => {
                 if(err){
                     res.status(status.INTERNAL_SERVER_ERROR).send("Error generating JSON Web Token");
                     return;
                 }
                 
                 res.set("x-access-token", token);
-                res.send({ uuid: userUUID });
+                res.status(status.OK).send({ uuid: data.uuid });
             })
         }).catch((err) => {
             res.status(status.INTERNAL_SERVER_ERROR).send(err);

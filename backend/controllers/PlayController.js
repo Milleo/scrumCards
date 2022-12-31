@@ -1,5 +1,4 @@
 const db = require("../database/models");
-const { v4: uuidv4 } = require('uuid');
 const status = require("http-status");
 
 const PlayController = {
@@ -23,15 +22,13 @@ const PlayController = {
         const round = await db.Round.findOne({ where: { uuid: uuid }});
         if(round == null) res.status(status.NOT_FOUND);
 
-        const playUUID = uuidv4();
         const { cardValue } = req.body;
         db.Play.create({
-            uuid: playUUID,
             cardValue: cardValue,
             round: round.id,
             user: room.users[0].id
-        }).then(() => {
-            res.status(status.OK).send({ uuid: playUUID });
+        }).then((data) => {
+            res.status(status.OK).send({ uuid: data.uuid });
         }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
         
     }

@@ -1,5 +1,4 @@
 const db = require("../database/models");
-const { v4: uuidv4 } = require('uuid');
 const faker = require("faker");
 const status = require("http-status");
 
@@ -93,18 +92,15 @@ const RoomController = {
                     break;
             }
 
-            const roomUUID = uuidv4();
-
             db.Room.create({
                 name: name,
                 maxValue: maxValue,
-                uuid: roomUUID,
                 includeCoffeeCard: includeCoffeeCard,
                 includeUnknownCard: includeUnknownCard,
                 owner: ownerObj.id,
                 uri: uri
-            }).then(() => {
-                res.status(status.OK).send({ uri, uuid: roomUUID });
+            }).then((data) => {
+                res.status(status.OK).send({ uri: data.uri, uuid: data.uuid });
             }).catch((err) => {
                 res.status(status.INTERNAL_SERVER_ERROR).send(err); 
             })

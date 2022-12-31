@@ -1,6 +1,8 @@
+const { Sequelize } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
     const Round = sequelize.define("Round", {
-        uuid: DataTypes.UUID,
+        uuid: { type: DataTypes.UUID, defaultValue: Sequelize.UUIDV4 },
         order: DataTypes.INTEGER.UNSIGNED,
         title: DataTypes.STRING,
     }, {

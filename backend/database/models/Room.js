@@ -1,6 +1,8 @@
+const { Sequelize } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
     const Room = sequelize.define("Room", {
-        uuid: { type: DataTypes.UUID, defaultValue: sequelize.UUIDV4 },
+        uuid: { type: DataTypes.UUID, defaultValue: Sequelize.UUIDV4 },
         name: DataTypes.STRING(50),
         owner: { type: DataTypes.INTEGER.UNSIGNED, foreignKey: true },
         maxValue:  DataTypes.TINYINT.UNSIGNED,

@@ -65,8 +65,6 @@ describe("Rooms endpoints", () => {
 
             expect(responseJoin.statusCode).toBe(status.OK);
         }
-
-        const result = await db.sequelize.query("SELECT * FROM users_rooms");
     });
     it("Ban user from room", async () => {
         const playerUUID = playersInfo[0].uuid;

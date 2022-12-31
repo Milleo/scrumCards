@@ -1,5 +1,4 @@
 const db = require("../database/models");
-const { v4: uuidv4 } = require('uuid');
 const status = require("http-status");
 
 const RoundController = {
@@ -17,8 +16,7 @@ const RoundController = {
             db.Round.create({
                 order: 1,
                 title: title,
-                room: roomObj.id,
-                uuid: uuidv4()
+                room: roomObj.id
             })
             .then((newRound) => res.status(status.OK).send({ uuid: newRound.uuid }))
             .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));

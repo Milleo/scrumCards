@@ -4,7 +4,7 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('rooms', {
       id: { type: Sequelize.DataTypes.INTEGER.UNSIGNED, primaryKey: true, autoIncrement: true, allowNull: false },
-      uuid: { type: Sequelize.DataTypes.UUID, allowNull: false, defaultValue: Sequelize.UUIDV4 },
+      uuid: { type: Sequelize.DataTypes.UUID, allowNull: false, unique: true, defaultValue: Sequelize.UUIDV4 },
       name: { type: Sequelize.DataTypes.STRING(50), allowNull: false },
       includeUnknownCard: { type: Sequelize.DataTypes.BOOLEAN, alloNull: false, defaultValue: 0 },
       includeCoffeeCard: { type: Sequelize.DataTypes.BOOLEAN, alloNull: false, defaultValue: 0 },

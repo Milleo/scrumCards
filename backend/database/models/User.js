@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
         paranoid: true
     });
 
-    User.associeate = (models) => {
-        User.belongsToMany(models.Room, { through: "users_rooms", as: "rooms", foreignKey: "id_user" });
+    User.associate = (models) => {
+        User.belongsToMany(models.Room, { through: models.UsersRooms, as: "rooms", foreignKey: "id_user" });
     }
 
     return User;

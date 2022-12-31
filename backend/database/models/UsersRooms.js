@@ -1,16 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
-    const UsersRoom = sequelize.define("UsersRoom", {
-        id_user: { type: DataTypes.UUID, defaultValue: sequelize.UUIDV4 },
-        id_room: { type: DataTypes.UUID, defaultValue: sequelize.UUIDV4 },
+    const UsersRooms = sequelize.define("UsersRooms", {
+        id_user: { type: DataTypes.INTEGER.UNSIGNED, foreignKey: true },
+        id_room: { type: DataTypes.INTEGER.UNSIGNED, foreignKey: true },
+        banned: { type: DataTypes.TINYINT.UNSIGNED },
+        role: { type: DataTypes.ENUM('player', 'spectator') },
         banned: DataTypes.BOOLEAN,
         role: DataTypes.ENUM('player', 'spectator')
     }, {
-        tableName: 'users_room',
+        tableName: 'users_rooms',
         timestamps: true,
         paranoid: true
     });
     
-    return UsersRoom;
+    return UsersRooms;
 }
 
 

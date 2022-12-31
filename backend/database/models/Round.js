@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
         paranoid: true
     });
     
-    Round.associeate = (models) => {
-        Round.belongsTo(models.Room, { foreignKey: "room" });
+    Round.associate = (models) => {
+        //Round.belongsTo(models.Room, { foreignKey: "room" });
     }
 
     return Round;

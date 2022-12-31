@@ -82,6 +82,23 @@ describe("Round endpoints", () => {
         expect(roundUpdate.statusCode).toBe(403);
     });
 
+    it("Delete round", async () => {
+        const roundUpdate = await request(app)
+            .delete(`/rooms/${roomURI}/round/${roundUUID}`)
+            .set("Authorization", ownerJWT);
+        expect(roundUpdate.statusCode).toBe(200);
+
+        const checkRound = await db.Round.findOne({ where: { uuid: roundUUID }});
+        expect(checkRound).toBe(null);
+    });
+
+    it("Not owner tries to delete round", async () => {
+        const roundUpdate = await request(app)
+            .delete(`/rooms/${roomURI}/round/${roundUUID}`)
+            .set("Authorization", playerJWT);
+        expect(roundUpdate.statusCode).toBe(403);
+    });
+
     afterAll(async () => {
         await db.sequelize.close();
     });

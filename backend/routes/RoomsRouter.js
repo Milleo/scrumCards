@@ -13,5 +13,6 @@ router.delete("/:uuid", AuthMiddleware, RoomsController.delete);
 
 router.post("/:uri/round/start", AuthMiddleware, RoundController.start);
 router.put("/:uri/round/:uuid", AuthMiddleware, RoundController.update);
+router.delete("/:uri/round/:uuid", AuthMiddleware, RoundController.delete);
 
 module.exports = router;

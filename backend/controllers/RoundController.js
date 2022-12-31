@@ -38,7 +38,24 @@ const RoundController = {
             db.Round.update({title}, { where: { uuid: uuid }})
             .then(() => res.sendStatus(200))
             .catch((err) => res.status(503).send(err))
-        });
+        })
+        .catch((err) => res.status(503).send(err));
+    },
+
+    delete: async (req, res) => {
+        const { uri, uuid } = req.params;
+        const owner = req.userInfo;
+        const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
+        
+        db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
+            if(roomObj == null) return res.sendStatus(404);
+            if(roomObj.owner != ownerObj.id) return res.sendStatus(403);
+
+            db.Round.destroy({ where: { uuid: uuid }})
+            .then(() => res.sendStatus(200))
+            .catch((err) => res.status(503).send(err))
+        })
+        .catch((err) => res.status(503).send(err));
     }
 }
 

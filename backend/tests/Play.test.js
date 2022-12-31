@@ -26,9 +26,7 @@ describe("Play endpoints", () => {
             .set("Authorization", ownerJWT)
             .send(roomPayload);
         roomURI = responseRoomCreation.body.uri;
-        const roundInfo = {
-            title: "New round"
-        }
+        const roundInfo = { title: "New round" }
         await request(app).get(`/rooms/${roomURI}`).set("Authorization", playerJWT).send({ role: "player" });
         const newRoundResp = await request(app)
             .post(`/rooms/${roomURI}/round/start/`)
@@ -37,9 +35,7 @@ describe("Play endpoints", () => {
         roundUUID = newRoundResp.body.uuid;
     });
     it("Create a play", async () => {
-        const playPayload = {
-            cardValue: 8
-        }
+        const playPayload = { cardValue: 8 };
         const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Authorization", playerJWT).send(playPayload);
         expect(response.statusCode).toBe(200);
 

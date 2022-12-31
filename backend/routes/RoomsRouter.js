@@ -2,6 +2,7 @@ const RoomsController = require("../controllers/RoomController");
 const RoundController = require("../controllers/RoundController");
 const PlayController = require("../controllers/PlayController");
 const AuthMiddleware = require("../middlewares/AuthMiddleware");
+const PlayValidator = require("../middlewares/validators/PlayValidator");
 const express = require('express');
 const router = express.Router();
 
@@ -17,6 +18,6 @@ router.post("/:uri/round/start", AuthMiddleware, RoundController.start);
 router.put("/:uri/round/:uuid", AuthMiddleware, RoundController.update);
 router.delete("/:uri/round/:uuid", AuthMiddleware, RoundController.delete);
 
-router.post("/:uri/round/:uuid/play", AuthMiddleware, PlayController.play);
+router.post("/:uri/round/:uuid/play", AuthMiddleware, PlayValidator.default, PlayController.play);
 
 module.exports = router;

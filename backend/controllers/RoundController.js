@@ -1,5 +1,6 @@
 const db = require("../database/models");
 const { v4: uuidv4 } = require('uuid');
+const status = require("http-status");
 
 const RoundController = {
     start: async (req, res) => {
@@ -10,8 +11,8 @@ const RoundController = {
         const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
         
         db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
-            if(roomObj == null) return res.sendStatus(404);
-            if(roomObj.owner != ownerObj.id) return res.sendStatus(403);
+            if(roomObj == null) return res.sendStatus(status.NOT_FOUND);
+            if(roomObj.owner != ownerObj.id) return res.sendStatus(status.UNAUTHORIZED);
 
             db.Round.create({
                 order: 1,
@@ -19,10 +20,10 @@ const RoundController = {
                 room: roomObj.id,
                 uuid: uuidv4()
             })
-            .then((newRound) => res.status(200).send({ uuid: newRound.uuid }))
-            .catch((err) => res.status(503).send(err));
+            .then((newRound) => res.status(status.OK).send({ uuid: newRound.uuid }))
+            .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
         })
-        .catch((err) => res.status(503).send(err));
+        .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
     },
 
     update: async (req, res) => {
@@ -32,14 +33,14 @@ const RoundController = {
         const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
         
         db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
-            if(roomObj == null) return res.sendStatus(404);
-            if(roomObj.owner != ownerObj.id) return res.sendStatus(403);
+            if(roomObj == null) return res.sendStatus(status.NOT_FOUND);
+            if(roomObj.owner != ownerObj.id) return res.sendStatus(status.UNAUTHORIZED);
 
             db.Round.update({title}, { where: { uuid: uuid }})
-            .then(() => res.sendStatus(200))
-            .catch((err) => res.status(503).send(err))
+            .then(() => res.sendStatus(status.OK))
+            .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
         })
-        .catch((err) => res.status(503).send(err));
+        .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
     },
 
     delete: async (req, res) => {
@@ -48,14 +49,14 @@ const RoundController = {
         const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
         
         db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
-            if(roomObj == null) return res.sendStatus(404);
-            if(roomObj.owner != ownerObj.id) return res.sendStatus(403);
+            if(roomObj == null) return res.sendStatus(status.NOT_FOUND);
+            if(roomObj.owner != ownerObj.id) return res.sendStatus(status.UNAUTHORIZED);
 
             db.Round.destroy({ where: { uuid: uuid }})
-            .then(() => res.sendStatus(200))
-            .catch((err) => res.status(503).send(err))
+            .then(() => res.sendStatus(status.OK))
+            .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
         })
-        .catch((err) => res.status(503).send(err));
+        .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
     }
 }
 

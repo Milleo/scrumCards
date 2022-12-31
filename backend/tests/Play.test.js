@@ -1,6 +1,7 @@
 const request = require('supertest');
 const { app } = require("../app");
 const db = require('../database/models');
+const status = require("http-status");
 
 describe("Play endpoints", () => {
     let roomURI = null;
@@ -37,7 +38,7 @@ describe("Play endpoints", () => {
     it("Create a play", async () => {
         const playPayload = { cardValue: 8 };
         const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Authorization", playerJWT).send(playPayload);
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(status.OK);
 
         const getPlay = await db.Play.findOne({ where: { uuid: response.body.uuid }});
         expect(getPlay.cardValue).toBe(playPayload.cardValue);

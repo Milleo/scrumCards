@@ -1,6 +1,7 @@
 const request = require('supertest');
 const { app } = require("../app");
 const db = require('../database/models');
+const status = require("http-status");
 
 describe("Round endpoints", () => {
     let ownerJWT = null;
@@ -36,7 +37,7 @@ describe("Round endpoints", () => {
             .post(`/rooms/${roomURI}/round/start/`)
             .set("Authorization", ownerJWT)
             .send(roundInfo);
-        expect(newRoundResp.statusCode).toBe(200);
+        expect(newRoundResp.statusCode).toBe(status.OK);
         expect(newRoundResp.body).toHaveProperty("uuid");
         roundUUID = newRoundResp.body.uuid;
     });
@@ -49,7 +50,7 @@ describe("Round endpoints", () => {
             .post(`/rooms/INVALID_URI/round/start/`)
             .set("Authorization", ownerJWT)
             .send(roundInfo);
-        expect(newRoundResp.statusCode).toBe(404);
+        expect(newRoundResp.statusCode).toBe(status.NOT_FOUND);
     });
 
     it("Not owner tries to create a new round", async () => {
@@ -58,7 +59,7 @@ describe("Round endpoints", () => {
             .post(`/rooms/${roomURI}/round/start/`)
             .set("Authorization", playerJWT)
             .send(roundInfo);
-        expect(newRoundResp.statusCode).toBe(403);
+        expect(newRoundResp.statusCode).toBe(status.UNAUTHORIZED);
     });
 
     it("Update round", async () => {
@@ -67,7 +68,7 @@ describe("Round endpoints", () => {
             .put(`/rooms/${roomURI}/round/${roundUUID}`)
             .set("Authorization", ownerJWT)
             .send(roundInfo);
-        expect(roundUpdate.statusCode).toBe(200);
+        expect(roundUpdate.statusCode).toBe(status.OK);
 
         const checkRound = await db.Round.findOne({ where: { uuid: roundUUID }});
         expect(checkRound.title).toBe(roundInfo.title);
@@ -79,14 +80,14 @@ describe("Round endpoints", () => {
             .put(`/rooms/${roomURI}/round/${roundUUID}`)
             .set("Authorization", playerJWT)
             .send(roundInfo);
-        expect(roundUpdate.statusCode).toBe(403);
+        expect(roundUpdate.statusCode).toBe(status.UNAUTHORIZED);
     });
 
     it("Delete round", async () => {
         const roundUpdate = await request(app)
             .delete(`/rooms/${roomURI}/round/${roundUUID}`)
             .set("Authorization", ownerJWT);
-        expect(roundUpdate.statusCode).toBe(200);
+        expect(roundUpdate.statusCode).toBe(status.OK);
 
         const checkRound = await db.Round.findOne({ where: { uuid: roundUUID }});
         expect(checkRound).toBe(null);
@@ -96,7 +97,7 @@ describe("Round endpoints", () => {
         const roundUpdate = await request(app)
             .delete(`/rooms/${roomURI}/round/${roundUUID}`)
             .set("Authorization", playerJWT);
-        expect(roundUpdate.statusCode).toBe(403);
+        expect(roundUpdate.statusCode).toBe(status.UNAUTHORIZED);
     });
 
     afterAll(async () => {

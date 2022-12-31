@@ -1,11 +1,12 @@
 const db = require("../database/models");
 const { v4: uuidv4 } = require('uuid');
 const faker = require("faker");
+const status = require("http-status");
 
 const RoomController = {
     list: (req,res) => {
         db.Room.findAll().then((result) => {
-            res.status(200).send(result);
+            res.status(status.OK).send(result);
         });
     },
     join: (req, res) => {
@@ -15,11 +16,11 @@ const RoomController = {
         
         db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
             if(roomObj == null){
-                return res.status(404).send("Room not found");
+                return res.status(status.NOT_FOUND).send("Room not found");
             }
             db.User.findOne({ where: { uuid: user.uuid }}).then(async (userObj) => {
                 if(userObj == null){
-                    return res.status(404).send("Room not found");
+                    return res.status(status.NOT_FOUND).send("Room not found");
                 }
 
                 const joinData = await db.UsersRooms.findOne({ where: { id_user: userObj.id, id_room: roomObj.id }});
@@ -30,16 +31,16 @@ const RoomController = {
                         id_room: roomObj.id,
                         role: role
                     })
-                    .then(() => res.sendStatus(200))
-                    .catch((err) => res.status(503).send(err));
+                    .then(() => res.sendStatus(status.OK))
+                    .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
                 }else{
                     if(joinData.banned){
-                        res.sendStatus(401);
+                        res.sendStatus(status.UNAUTHORIZED);
                     }
                 }
                 
-            }).catch((err) => res.status(503).send(err))
-        }).catch((err) => res.status(503).send(err));
+            }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
+        }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
         
     },
     banUser: async (req, res) => {
@@ -48,12 +49,12 @@ const RoomController = {
         const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
         
         db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
-            if(roomObj.owner != ownerObj.id) return res.sendStatus(403);
-            if(roomObj == null) return res.status(404).send("Room not found");
+            if(roomObj.owner != ownerObj.id) return res.sendStatus(status.UNAUTHORIZED);
+            if(roomObj == null) return res.status(status.NOT_FOUND).send("Room not found");
 
             db.User.findOne({ where: { uuid: userUUID }}).then((userObj) => {
                 if(userObj == null){
-                    return res.status(404).send("User not found");
+                    return res.status(status.NOT_FOUND).send("User not found");
                 }
 
                 db.UsersRooms.update({ banned: true }, {
@@ -61,21 +62,21 @@ const RoomController = {
                         id_user: userObj.id,
                         id_room: roomObj.id
                 }})
-                .then(() => res.sendStatus(200))
-                .catch((err) => res.status(503).send(err));
-            }).catch((err) => res.status(503).send(err))
-        }).catch((err) => res.status(503).send(err));
+                .then(() => res.sendStatus(status.OK))
+                .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
+            }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
+        }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
     },
     get: (req,res) => {
         const { uri } = req.params;
         
         db.Room.findOne({ where: { uri: uri } }).then((result) => {
             if(result == null)
-                res.sendStatus(404);
+                res.sendStatus(status.NOT_FOUND);
             else
-                res.status(200).send(result);
+                res.status(status.OK).send(result);
         }).catch((err) => {
-            res.status(503).send(err);
+            res.status(status.INTERNAL_SERVER_ERROR).send(err);
         })
     },
     create: (req,res) => {
@@ -103,12 +104,12 @@ const RoomController = {
                 owner: ownerObj.id,
                 uri: uri
             }).then(() => {
-                res.status(200).send({ uri, uuid: roomUUID });
+                res.status(status.OK).send({ uri, uuid: roomUUID });
             }).catch((err) => {
-                res.status(503).send(err); 
+                res.status(status.INTERNAL_SERVER_ERROR).send(err); 
             })
         }).catch((err) => {
-            res.status(503).send(err);
+            res.status(status.INTERNAL_SERVER_ERROR).send(err);
         });
     },
     update: async (req,res) => {
@@ -124,12 +125,12 @@ const RoomController = {
                 includeUnknownCard: includeUnknownCard,
             }, { where: { uuid: uuid, owner: ownerObj.id }}).then(([affectedCount]) => {
                 if(affectedCount == 0)
-                    res.sendStatus(401);
+                    res.sendStatus(status.UNAUTHORIZED);
                 else
-                    res.sendStatus(200);
+                    res.sendStatus(status.OK);
                 
             }).catch((err) => {
-                res.status(503).send(err);
+                res.status(status.INTERNAL_SERVER_ERROR).send(err);
             })
         });
     },
@@ -137,9 +138,9 @@ const RoomController = {
         const { uuid } = req.params;
 
         db.Room.destroy({ where: { uuid: uuid } }).then(() => {
-            res.status(200);
+            res.status(status.OK);
         }).catch((err) => {
-            res.status(503).send(err);
+            res.status(status.INTERNAL_SERVER_ERROR).send(err);
         })
     }
 }

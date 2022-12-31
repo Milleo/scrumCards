@@ -1,5 +1,6 @@
 const db = require("../database/models");
 const { v4: uuidv4 } = require('uuid');
+const status = require("http-status");
 
 const PlayController = {
     play: async (req, res) => {
@@ -7,7 +8,7 @@ const PlayController = {
         const { uuid, uri } = req.params;
 
         const user = await db.User.findOne({ where: { uuid: player.uuid }});
-        if(user == null) res.status(403);
+        if(user == null) res.status(status.UNAUTHORIZED);
         
         const room = await db.Room.findOne(
             {
@@ -17,10 +18,10 @@ const PlayController = {
                     where: { id: user.id }
                 }]
             });
-        if(room == null) res.status(404);
+        if(room == null) res.status(status.NOT_FOUND);
 
         const round = await db.Round.findOne({ where: { uuid: uuid }});
-        if(round == null) res.status(404);
+        if(round == null) res.status(status.NOT_FOUND);
 
         const playUUID = uuidv4();
         const { cardValue } = req.body;
@@ -30,8 +31,8 @@ const PlayController = {
             round: round.id,
             user: room.users[0].id
         }).then(() => {
-            res.status(200).send({ uuid: playUUID });
-        }).catch((err) => res.status(503).send(err))
+            res.status(status.OK).send({ uuid: playUUID });
+        }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
         
     }
 }

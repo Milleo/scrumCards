@@ -1,6 +1,7 @@
 const request = require('supertest');
 const { app } = require("../app");
 const db = require('../database/models');
+const status = require("http-status");
 
 describe("Rooms endpoints", () => {
     let roomUUID = null;
@@ -21,7 +22,7 @@ describe("Rooms endpoints", () => {
     });
     it("Create a room", async () => {
         const response = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(status.OK);
         ownerJWT = response.header["x-access-token"];
 
         const responseRoomCreation = await request(app)
@@ -30,7 +31,7 @@ describe("Rooms endpoints", () => {
             .send(roomPayload);
         roomUUID = responseRoomCreation.body.uuid;
         roomURI = responseRoomCreation.body.uri;
-        expect(responseRoomCreation.statusCode).toBe(200);
+        expect(responseRoomCreation.statusCode).toBe(status.OK);
     });
     it("Update room", async () => {
         const updatePayload = {
@@ -43,7 +44,7 @@ describe("Rooms endpoints", () => {
             .put(`/rooms/${roomUUID}`)
             .set("Authorization", ownerJWT)
             .send(updatePayload);
-        expect(responseRoomUpdate.statusCode).toBe(200);
+        expect(responseRoomUpdate.statusCode).toBe(status.OK);
 
         const resCheckRoom = await db.Room.findOne({ where: { uuid: roomUUID } });
         expect(resCheckRoom.dataValues).toEqual(
@@ -62,7 +63,7 @@ describe("Rooms endpoints", () => {
 
             const responseJoin = await request(app).get(`/rooms/${roomURI}`).set("Authorization", playerJWT).send({ role: "player" });
 
-            expect(responseJoin.statusCode).toBe(200);
+            expect(responseJoin.statusCode).toBe(status.OK);
         }
 
         const result = await db.sequelize.query("SELECT * FROM users_rooms");
@@ -71,7 +72,7 @@ describe("Rooms endpoints", () => {
         const playerUUID = playersInfo[0].uuid;
 
         const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", ownerJWT);
-        expect(responseBan.statusCode).toBe(200);
+        expect(responseBan.statusCode).toBe(status.OK);
     });
     it("Banned user tries to join room", async () => {
         // Owner bans the player
@@ -81,7 +82,7 @@ describe("Rooms endpoints", () => {
 
         // Player tries to return
         const respBanned = await request(app).get(`/rooms/${roomURI}`).send({ role: "player" }).set("Authorization", playerJWT);
-        expect(respBanned.statusCode).toBe(401);
+        expect(respBanned.statusCode).toBe(status.UNAUTHORIZED);
     });
     it("Not owner tries to update room", async () => {
         const playerJWT = playersInfo[2].jwt;
@@ -93,14 +94,14 @@ describe("Rooms endpoints", () => {
             includeUnknownCard: true,
         }
         const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).set("Authorization", playerJWT).send(updatePayload);
-        expect(responseRoomUpdate.statusCode).toBe(401);
+        expect(responseRoomUpdate.statusCode).toBe(status.UNAUTHORIZED);
     });
     it("Not owner tries to ban user from room", async () => {
         const playerJWT = playersInfo[3].jwt;
         const playerUUID = playersInfo[4].uuid;
 
         const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", playerJWT);
-        expect(responseBan.statusCode).toBe(403);
+        expect(responseBan.statusCode).toBe(status.UNAUTHORIZED);
     });
     afterAll(async () => {
         await db.sequelize.close();

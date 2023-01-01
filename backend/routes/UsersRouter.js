@@ -7,6 +7,7 @@ router.get('/:name', UsersController.get);
 router.get('/', UsersController.list);
 router.post("/", UserValidator.create, UsersController.create);
 router.post("/guest", UserValidator.createGuest, UsersController.createGuest);
+router.post("/login", UserValidator.login, UsersController.login);
 router.put("/:uuid", UserValidator.update, UsersController.update);
 router.put("/:uuid/password", UserValidator.updatePassword, UsersController.updatePassword);
 router.delete("/:uuid", UsersController.delete);

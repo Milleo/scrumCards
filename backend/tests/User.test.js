@@ -22,10 +22,16 @@ describe("User endpoints", () => {
     it("Create new user", async () => {
         const response = await request(app).post("/users").send(testPayload);
         expect(response.statusCode).toBe(status.OK);
+
+        const userJWT = response.header["x-access-token"];
+        expect(userJWT).not.toBeUndefined();
     });
     it("Create new guest user", async () => {
         const response = await request(app).post("/users/guest").send({ userName: "Guest_user_123"});
         expect(response.statusCode).toBe(status.OK);
+
+        const userJWT = response.header["x-access-token"];
+        expect(userJWT).not.toBeUndefined();
     });
     it("Try to create user with same e-mail", async () => {
         const otherUser = {...testPayload};
@@ -46,6 +52,13 @@ describe("User endpoints", () => {
         expect(response.statusCode).toBe(status.OK);
         userUUID = response.body.uuid;
     });
+    it("Login user", async () => {
+        const response = await request(app).post("/users/login").send({ email: testPayload.email, password: testPayload.password });
+        expect(response.statusCode).toBe(status.OK);
+
+        const userJWT = response.header["x-access-token"];
+        expect(userJWT).not.toBeUndefined();
+    })
     it("Delete new User", async () => {
         const response = await request(app).delete(`/users/${userUUID}`)
         expect(response.statusCode).toBe(status.OK);

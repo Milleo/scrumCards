@@ -22,6 +22,23 @@ const UserController = {
             res.status(status.INTERNAL_SERVER_ERROR).send(err);
         })
     },
+    login: (req, res) => {
+        const { userName, email, password } = req.body;
+        db.User.findOne({ where: { email: email }}).then((result) => {
+            if(!bcrypt.compareSync(password, result.password))
+                return res.sendStatus(status.NOT_FOUND);
+            
+            jwt.sign({ uuid: result.uuid, name: result.name }, process.env.JWT_SECRET_KEY, (err, token) => {
+                if(err){
+                    res.status(status.INTERNAL_SERVER_ERROR).send("Error generating JSON Web Token");
+                    return;
+                }
+                
+                res.set("x-access-token", token);
+                res.sendStatus(status.OK);
+            })
+        }).catch((err) => res.sendStatus(status.NOT_FOUND));
+    },
     create: (req,res) => {
         const errors = validationResult(req);
         if(!errors.isEmpty()){
@@ -35,11 +52,17 @@ const UserController = {
             name: userName,
             email: email,
             password: passwdHash,
-        }).then(() => {
-            res.sendStatus(status.OK);
-        }).catch((err) => {
-            res.status(status.INTERNAL_SERVER_ERROR).send(err);
-        });
+        }).then((result) => {
+            jwt.sign({ uuid: result.uuid, name: result.name }, process.env.JWT_SECRET_KEY, (err, token) => {
+                if(err){
+                    res.status(status.INTERNAL_SERVER_ERROR).send("Error generating JSON Web Token");
+                    return;
+                }
+                
+                res.set("x-access-token", token);
+                res.sendStatus(status.OK);
+            });
+        }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
     },
     createGuest: (req,res) => {
         const { userName } = req.body;

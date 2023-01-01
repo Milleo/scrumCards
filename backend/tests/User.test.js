@@ -58,7 +58,14 @@ describe("User endpoints", () => {
 
         const userJWT = response.header["x-access-token"];
         expect(userJWT).not.toBeUndefined();
-    })
+    });
+    it("Login user with invalid request", async () => {
+        const response = await request(app).post("/users/login").send({ });
+        expect(response.statusCode).toBe(status.BAD_REQUEST);
+
+        const userJWT = response.header["x-access-token"];
+        expect(userJWT).toBeUndefined();
+    });
     it("Delete new User", async () => {
         const response = await request(app).delete(`/users/${userUUID}`)
         expect(response.statusCode).toBe(status.OK);

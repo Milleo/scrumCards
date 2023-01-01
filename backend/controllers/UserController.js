@@ -23,6 +23,10 @@ const UserController = {
         })
     },
     login: (req, res) => {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(status.BAD_REQUEST).send({ errors: errors.array() });
+        }
         const { userName, email, password } = req.body;
         db.User.findOne({ where: { email: email }}).then((result) => {
             if(!bcrypt.compareSync(password, result.password))
@@ -85,6 +89,10 @@ const UserController = {
         });
     },
     update: (req,res) => {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(status.BAD_REQUEST).send({ errors: errors.array() });
+        }
         const { userName, email } = req.body;
         const { uuid } = req.params;
         db.User.update({
@@ -97,6 +105,10 @@ const UserController = {
         });
     },
     updatePassword: (req, res) => {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()){
+            return res.status(status.BAD_REQUEST).send({ errors: errors.array() });
+        }
         const { uuid } = req.params;
         const { password } = req.body;
         const salt = bcrypt.genSaltSync(10);

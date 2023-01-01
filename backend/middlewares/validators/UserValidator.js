@@ -14,15 +14,6 @@ const UserValidator = {
         email: {
             errorMessage: "Invalid email address",
             isEmail: { bail: true },
-            custom: {
-                options: (value) => {
-                    return db.User.findOne({ where: { email: value }, paranoid: false })
-                        .then((data) => {
-                            if(data != null)
-                                return Promise.reject("Email already signed");
-                        })
-                }
-            }
         },
     }),
     create: checkSchema({

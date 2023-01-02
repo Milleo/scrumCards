@@ -19,10 +19,7 @@ const UserController = {
                 return res.sendStatus(status.NOT_FOUND);
 
             res.status(status.OK).send(result);
-        }).catch((err) => {
-            res.status(status.INTERNAL_SERVER_ERROR).send(err);
-            console.log(err);
-        })
+        }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
     },
     login: (req, res) => {
         const errors = validationResult(req);

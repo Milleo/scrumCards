@@ -96,6 +96,29 @@ describe("Round endpoints", () => {
         expect(checkRoundAfter.ended).toBe(true);
     });
 
+    it("Create multiple rounds and keep the correct value of order", async () => {
+        const TEST_CASES = 5;
+        for(let i = 0; i < TEST_CASES; i++){
+            await request(app)
+                .post(`/rooms/${roomURI}/round/start/`)
+                .set("Authorization", ownerJWT)
+                .send({});
+        }
+
+        const getRoom = await db.Room.findOne({ where: { uri: roomURI }});
+
+        let checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
+        expect(checkOrder.order).toBe(TEST_CASES);
+
+        await request(app).delete(`/rooms/${roomURI}/round/${checkOrder.uuid}`).set("Authorization", ownerJWT);
+        checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
+        expect(checkOrder.order).toBe(TEST_CASES - 1);
+
+        await request(app).post(`/rooms/${roomURI}/round/start/`).set("Authorization", ownerJWT).send({});
+        checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
+        expect(checkOrder.order).toBe(TEST_CASES);
+    })
+
     it("Delete round", async () => {
         const roundUpdate = await request(app)
             .delete(`/rooms/${roomURI}/round/${roundUUID}`)

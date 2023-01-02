@@ -4,22 +4,29 @@ const status = require("http-status");
 const RoundController = {
     startRound: async (req, res) => {
         const { uri } = req.params;
-        const { title, relatedLink } = req.body;
+        let { title, relatedLink } = req.body;
         const owner = req.userInfo;
         const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
         
-        db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
+        db.Room.findOne({ where: { uri: uri }}).then(async (roomObj) => {
             if(roomObj == null) return res.sendStatus(status.NOT_FOUND);
             if(roomObj.owner != ownerObj.id) return res.sendStatus(status.UNAUTHORIZED);
+            let orderCheck = await db.Round.findOne({ where: { room_id: roomObj.id }, order: [["order", "DESC"]] });
+            let lastOrder = 0;
+            if(orderCheck != null) lastOrder = orderCheck.order;
+            
+            lastOrder++;
 
+            if(!title) title = `Round ${(lastOrder)}`;
+            
             db.Round.create({
-                order: 1,
+                order: lastOrder,
                 title: title,
                 relatedLink: relatedLink,
-                room: roomObj.id
+                room_id: roomObj.id
             })
             .then((newRound) => res.status(status.OK).send({ uuid: newRound.uuid }))
-            .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
+            .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err) );
         })
         .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
     },

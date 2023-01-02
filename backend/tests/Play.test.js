@@ -62,6 +62,49 @@ describe("Play endpoints", () => {
         const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Authorization", playerJWT).send(playPayload);
         expect(response.statusCode).toBe(status.BAD_REQUEST);
     });
+    it("Get all play values after round end", async () => {
+        const playersInfo = [
+            { cardValue: 2,  user: { userName: "player_1" }},
+            { cardValue: 3,  user: { userName: "player_2" }},
+            { cardValue: 5,  user: { userName: "player_3" }},
+            { cardValue: 3,  user: { userName: "player_4" }},
+            { cardValue: 3,  user: { userName: "player_5" }},
+            { cardValue: 13, user: { userName: "player_6" }},
+            { cardValue: 5,  user: { userName: "player_7" }},
+            { cardValue: 8,  user: { userName: "player_8" }},
+        ];
+        const playersJWTs = [];
+        const cardValues = [null,2,3,5,3,3,13,5,8];
+        const PLAYERS_QTY = 8;
+
+        const testRoundResp = await request(app)
+            .post(`/rooms/${roomURI}/round/start/`)
+            .set("Authorization", ownerJWT)
+            .send({ title: "New round 2" });
+        const testRoundUUID = testRoundResp.body.uuid;
+        
+        for(let i = 0; i < PLAYERS_QTY; i++){
+            const responseCreateGuest = await request(app).post("/users/guest").send({ userName: playersInfo[i].user.userName });
+            const playerJWT = responseCreateGuest.header["x-access-token"];
+            playersJWTs.push(playerJWT);
+
+            await request(app).get(`/rooms/${roomURI}`).set("Authorization", playerJWT).send({ role: "player" });
+        }
+
+        await playersInfo.forEach(async (player, index) => {
+            await request(app)
+                .post(`/rooms/${roomURI}/round/${testRoundUUID}/play`)
+                .set("Authorization", playersJWTs[index])
+                .send({ cardValue: player.cardValue });
+        });
+
+        const playSummary = await request(app)
+            .get(`/rooms/${roomURI}/round/${testRoundUUID}/end`)
+            .set("Authorization", ownerJWT);
+
+        
+        expect(playSummary.body).toEqual(expect.arrayContaining(playersInfo));
+    })
     afterAll(async () => {
         await db.sequelize.close();
     });

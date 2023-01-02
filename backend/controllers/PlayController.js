@@ -30,8 +30,9 @@ const PlayController = {
         const { cardValue } = req.body;
         db.Play.create({
             cardValue: cardValue,
-            round: round.id,
-            user: room.users[0].id
+            round_id: round.id,
+            room_id: room.id,
+            user_id: room.users[0].id
         })
         .then((data) => res.status(status.OK).send({ uuid: data.uuid }))
         .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))

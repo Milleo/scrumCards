@@ -31,8 +31,17 @@ const RoundController = {
             if(roomObj == null) return res.sendStatus(status.NOT_FOUND);
             if(roomObj.owner != ownerObj.id) return res.sendStatus(status.UNAUTHORIZED);
 
-            db.Round.update({ ended: true }, { where: { uuid: uuid }})
-            .then(() => res.sendStatus(status.OK))
+            db.Round.findOne({ where: { uuid: uuid }})
+            .then(async (round) => {
+                round.ended = true;
+                await round.save();
+                db.Play.findAll(
+                    { where: { round_id: round.id },
+                    include: [{ association: "user", "attributes": ["userName"] }],
+                    attributes: ["cardValue"] }).then((summary) => {
+                        res.status(status.OK).send(summary);
+                }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
+            })
             .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
         })
         .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));

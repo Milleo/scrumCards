@@ -4,8 +4,6 @@ module.exports = (sequelize, DataTypes) => {
     const Play = sequelize.define("Play", {
         uuid: { type: DataTypes.UUID, defaultValue: Sequelize.UUIDV4 },
         cardValue: DataTypes.TINYINT.UNSIGNED,
-        user: { type: DataTypes.INTEGER.UNSIGNED, foreignKey: true },
-        round: { type: DataTypes.INTEGER.UNSIGNED, foreignKey: true },
     }, {
         tableName: 'plays',
         timestamps: true,
@@ -13,9 +11,10 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Play.associate = (models) => {
-        //Play.belongsTo(models.User, { foreignKey: "user" });
-        //Play.belongsTo(models.Round, { foreignKey: "round" });
-    }
+        Play.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+        Play.belongsTo(models.Round, { foreignKey: "round_id", as: "round" });
+        Play.belongsTo(models.Room, { foreignKey: "room_id", as: "room" });
+    };
     
 
     return Play;

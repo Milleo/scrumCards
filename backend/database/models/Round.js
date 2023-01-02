@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     const Round = sequelize.define("Round", {
         uuid: { type: DataTypes.UUID, defaultValue: Sequelize.UUIDV4 },
         order: DataTypes.INTEGER.UNSIGNED,
-        title: DataTypes.STRING,
+        title: DataTypes.STRING(100),
+        related_link: DataTypes.STRING(255),
         ended: { type: DataTypes.BOOLEAN, defaultValue: false }
     }, {
         tableName: 'rounds',
@@ -13,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     
     Round.associate = (models) => {
-        Round.belongsTo(models.Room, { foreignKey: "room" });
+        Round.belongsTo(models.Room, { foreignKey: "room_id" });
     }
 
     return Round;

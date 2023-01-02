@@ -4,7 +4,7 @@ const status = require("http-status");
 const RoundController = {
     startRound: async (req, res) => {
         const { uri } = req.params;
-        const { title } = req.body;
+        const { title, relatedLink } = req.body;
         const owner = req.userInfo;
         const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
         
@@ -15,6 +15,7 @@ const RoundController = {
             db.Round.create({
                 order: 1,
                 title: title,
+                relatedLink: relatedLink,
                 room: roomObj.id
             })
             .then((newRound) => res.status(status.OK).send({ uuid: newRound.uuid }))

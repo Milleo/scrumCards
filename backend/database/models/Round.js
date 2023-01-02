@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
         uuid: { type: DataTypes.UUID, defaultValue: Sequelize.UUIDV4 },
         order: DataTypes.INTEGER.UNSIGNED,
         title: DataTypes.STRING,
+        ended: { type: DataTypes.BOOLEAN, defaultValue: false }
     }, {
         tableName: 'rounds',
         timestamps: true,

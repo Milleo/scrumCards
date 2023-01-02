@@ -14,7 +14,8 @@ router.post("/", AuthMiddleware, RoomsController.create);
 router.put("/:uuid", AuthMiddleware, RoomsController.update);
 router.delete("/:uuid", AuthMiddleware, RoomsController.delete);
 
-router.post("/:uri/round/start", AuthMiddleware, RoundController.start);
+router.post("/:uri/round/start", AuthMiddleware, RoundController.startRound);
+router.get("/:uri/round/:uuid/end", AuthMiddleware, RoundController.endRound);
 router.put("/:uri/round/:uuid", AuthMiddleware, RoundController.update);
 router.delete("/:uri/round/:uuid", AuthMiddleware, RoundController.delete);
 

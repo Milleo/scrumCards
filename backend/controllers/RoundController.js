@@ -2,8 +2,7 @@ const db = require("../database/models");
 const status = require("http-status");
 
 const RoundController = {
-    start: async (req, res) => {
-        const lastOrder = 1;
+    startRound: async (req, res) => {
         const { uri } = req.params;
         const { title } = req.body;
         const owner = req.userInfo;
@@ -23,7 +22,21 @@ const RoundController = {
         })
         .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
     },
+    endRound: async (req, res) => {
+        const { uri, uuid } = req.params;
+        const owner = req.userInfo;
+        const ownerObj = await db.User.findOne({ where: { uuid: owner.uuid }});
 
+        db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
+            if(roomObj == null) return res.sendStatus(status.NOT_FOUND);
+            if(roomObj.owner != ownerObj.id) return res.sendStatus(status.UNAUTHORIZED);
+
+            db.Round.update({ ended: true }, { where: { uuid: uuid }})
+            .then(() => res.sendStatus(status.OK))
+            .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
+        })
+        .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
+    },
     update: async (req, res) => {
         const { title } = req.body;
         const { uri, uuid } = req.params;

@@ -83,6 +83,19 @@ describe("Round endpoints", () => {
         expect(roundUpdate.statusCode).toBe(status.UNAUTHORIZED);
     });
 
+    it("Room owner ends a round", async () => {
+        const checkRoundBefore = await db.Round.findOne({ where: { uuid: roundUUID }});
+        expect(checkRoundBefore.ended).toBe(false);
+
+        const response = await request(app)
+            .get(`/rooms/${roomURI}/round/${roundUUID}/end`)
+            .set("Authorization", ownerJWT);
+        expect(response.statusCode).toBe(status.OK);
+
+        const checkRoundAfter = await db.Round.findOne({ where: { uuid: roundUUID }});
+        expect(checkRoundAfter.ended).toBe(true);
+    });
+
     it("Delete round", async () => {
         const roundUpdate = await request(app)
             .delete(`/rooms/${roomURI}/round/${roundUUID}`)

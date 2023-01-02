@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     
     Round.associate = (models) => {
-        //Round.belongsTo(models.Room, { foreignKey: "room" });
+        Round.belongsTo(models.Room, { foreignKey: "room" });
     }
 
     return Round;

@@ -10,7 +10,7 @@ describe("User endpoints", () => {
         userName: userNameTest,
         email: "test1@test.com",
         password: "12345678"
-    }
+    };
 
     beforeAll(async () => {
         await db.sequelize.sync({ force: true });
@@ -52,8 +52,15 @@ describe("User endpoints", () => {
         expect(response.statusCode).toBe(status.OK);
         userUUID = response.body.uuid;
     });
-    it("Login user", async () => {
+    it("Login user with email address", async () => {
         const response = await request(app).post("/users/login").send({ email: testPayload.email, password: testPayload.password });
+        expect(response.statusCode).toBe(status.OK);
+
+        const userJWT = response.header["x-access-token"];
+        expect(userJWT).not.toBeUndefined();
+    });
+    it("Login user with user name", async () => {
+        const response = await request(app).post("/users/login").send({ userName: testPayload.userName, password: testPayload.password });
         expect(response.statusCode).toBe(status.OK);
 
         const userJWT = response.header["x-access-token"];

@@ -10,11 +10,7 @@ const UserValidator = {
                 errorMessage: "Password should have at least 8 chars",
                 options: { min: 8 }
             }
-        },
-        email: {
-            errorMessage: "Invalid email address",
-            isEmail: { bail: true },
-        },
+        }
     }),
     create: checkSchema({
         password: {
@@ -43,7 +39,7 @@ const UserValidator = {
             exists: { errorMessage: "User name is required" },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { name: value }, paranoid: false })
+                    return db.User.findOne({ where: { userName: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("User name already taken");
@@ -58,7 +54,7 @@ const UserValidator = {
             exists: { errorMessage: "User name is required" },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { name: value }, paranoid: false })
+                    return db.User.findOne({ where: { userName: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("User name already taken");
@@ -86,7 +82,7 @@ const UserValidator = {
             exists: { errorMessage: "User name is required" },
             custom: {
                 options: (value) => {
-                    return db.User.findOne({ where: { name: value }, paranoid: false })
+                    return db.User.findOne({ where: { userName: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
                                 return Promise.reject("User name already taken");

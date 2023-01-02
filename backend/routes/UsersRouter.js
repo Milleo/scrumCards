@@ -3,7 +3,7 @@ const UserValidator = require("../middlewares/validators/UserValidator");
 const express = require('express');
 const router = express.Router();
 
-router.get('/:name', UsersController.get);
+router.get('/:userName', UsersController.get);
 router.get('/', UsersController.list);
 router.post("/", UserValidator.create, UsersController.create);
 router.post("/guest", UserValidator.createGuest, UsersController.createGuest);

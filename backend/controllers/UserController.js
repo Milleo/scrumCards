@@ -3,23 +3,25 @@ const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const status = require("http-status");
+const { Op, where } = require("sequelize");
 
 
 const UserController = {
     list: (req,res) => {
-        db.User.findAll({ attributes: ["uuid", "name", "email" ]}).then((result) => {
+        db.User.findAll({ attributes: ["uuid", "userName", "email" ]}).then((result) => {
             res.status(status.OK).send(result);
         });
     },
     get: (req,res) => {
-        const { name } = req.params;
-        db.User.findOne({ where: { name: name }, attributes: ["uuid", "name", "email" ]}).then((result) => {
+        const { userName } = req.params;
+        db.User.findOne({ where: { userName: userName }, attributes: ["uuid", "userName", "email" ]}).then((result) => {
             if(result == null)
                 return res.sendStatus(status.NOT_FOUND);
 
             res.status(status.OK).send(result);
         }).catch((err) => {
             res.status(status.INTERNAL_SERVER_ERROR).send(err);
+            console.log(err);
         })
     },
     login: (req, res) => {
@@ -28,11 +30,15 @@ const UserController = {
             return res.status(status.BAD_REQUEST).send({ errors: errors.array() });
         }
         const { userName, email, password } = req.body;
-        db.User.findOne({ where: { email: email }}).then((result) => {
+        let whereCondition = { userName: userName };
+        if(email != null)
+            whereCondition = { email: email };
+            
+        db.User.findOne({ where: whereCondition }).then((result) => {
             if(!bcrypt.compareSync(password, result.password))
                 return res.sendStatus(status.NOT_FOUND);
             
-            jwt.sign({ uuid: result.uuid, name: result.name }, process.env.JWT_SECRET_KEY, (err, token) => {
+            jwt.sign({ uuid: result.uuid, userName: result.userName }, process.env.JWT_SECRET_KEY, (err, token) => {
                 if(err){
                     res.status(status.INTERNAL_SERVER_ERROR).send("Error generating JSON Web Token");
                     return;
@@ -41,7 +47,7 @@ const UserController = {
                 res.set("x-access-token", token);
                 res.sendStatus(status.OK);
             })
-        }).catch((err) => res.sendStatus(status.NOT_FOUND));
+        }).catch((err) => res.status(status.NOT_FOUND).send(err));
     },
     create: (req,res) => {
         const errors = validationResult(req);
@@ -53,11 +59,11 @@ const UserController = {
         const passwdHash = bcrypt.hashSync(password, salt);
 
         db.User.create({
-            name: userName,
+            userName: userName,
             email: email,
             password: passwdHash,
         }).then((result) => {
-            jwt.sign({ uuid: result.uuid, name: result.name }, process.env.JWT_SECRET_KEY, (err, token) => {
+            jwt.sign({ uuid: result.uuid, userName: result.userName }, process.env.JWT_SECRET_KEY, (err, token) => {
                 if(err){
                     res.status(status.INTERNAL_SERVER_ERROR).send("Error generating JSON Web Token");
                     return;
@@ -71,11 +77,11 @@ const UserController = {
     createGuest: (req,res) => {
         const { userName } = req.body;
         const userData = {
-            name: userName,
+            userName: userName,
         };
 
         db.User.create(userData).then((data) => {
-            jwt.sign({ uuid: data.uuid, name: data.name }, process.env.JWT_SECRET_KEY, (err, token) => {
+            jwt.sign({ uuid: data.uuid, userName: data.userName }, process.env.JWT_SECRET_KEY, (err, token) => {
                 if(err){
                     res.status(status.INTERNAL_SERVER_ERROR).send("Error generating JSON Web Token");
                     return;
@@ -96,7 +102,7 @@ const UserController = {
         const { userName, email } = req.body;
         const { uuid } = req.params;
         db.User.update({
-            name: userName,
+            userName: userName,
             email: email
         }, { where: { uuid: uuid }}).then(() => {
             res.sendStatus(status.OK);

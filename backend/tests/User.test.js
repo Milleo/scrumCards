@@ -20,7 +20,7 @@ describe("User endpoints", () => {
         expect(response.statusCode).toBe(status.OK);
     });
     it("Create new user", async () => {
-        const response = await request(app).post("/users").send(testPayload);
+        const response = await request(app).post("/users/signup").send(testPayload);
         expect(response.statusCode).toBe(status.OK);
 
         const userJWT = response.header["x-access-token"];
@@ -36,14 +36,14 @@ describe("User endpoints", () => {
     it("Try to create user with same e-mail", async () => {
         const otherUser = {...testPayload};
         otherUser.userName = "Another_user_name";
-        const response = await request(app).post("/users").send(otherUser);
+        const response = await request(app).post("/users/signup").send(otherUser);
         expect(response.statusCode).toBe(status.BAD_REQUEST);
         expect(response.body.errors[0].msg).toBe("Email already signed");
     });
     it("Try to create user with same username", async () => {
         const otherUser = {...testPayload};
         otherUser.email = "test2@test.com";
-        const response = await request(app).post("/users").send(otherUser);
+        const response = await request(app).post("/users/signup").send(otherUser);
         expect(response.statusCode).toBe(status.BAD_REQUEST);
         expect(response.body.errors[0].msg).toBe("User name already taken");
     });

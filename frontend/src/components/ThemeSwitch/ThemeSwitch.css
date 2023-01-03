@@ -1,6 +1,7 @@
 #theme-switch{
     height: 24px;
     padding: 8px;
+    margin-top: 9px;
     width: 36px;
 }
 #theme-switch.form-check-input{

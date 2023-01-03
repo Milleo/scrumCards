@@ -37,14 +37,16 @@ function App(){
                 <GlobalStyles />
                 <IntlProvider messages={translations} locale={language} defaultLocale="en">
                     <Router>
-                        <Header selectedLanguage={language} onChangeLang={ onChangeLang } toggleTheme={ toggleTheme } />
-                        <Container fluid>
-                            <Switch>
-                                <Route exact path="/"><Main /></Route>
-                                <Route path="/newRoom"><CreateRoom /></Route>
-                                <Route path="/room/:roomURI"><Room /></Route>
-                                <Route path="*"><NoMatch /></Route>
-                            </Switch>
+                        <Container fluid style={{ height: "100vh" }}>
+                            <Header selectedLanguage={language} onChangeLang={ onChangeLang } toggleTheme={ toggleTheme } />
+                            <Container>
+                                <Switch>
+                                    <Route exact path="/"><Main /></Route>
+                                    <Route path="/newRoom"><CreateRoom /></Route>
+                                    <Route path="/room/:roomURI"><Room /></Route>
+                                    <Route path="*"><NoMatch /></Route>
+                                </Switch>
+                            </Container>
                         </Container>
                     </Router>
                 </IntlProvider>

@@ -1,91 +1,103 @@
-import React, { useState, Fragment, useEffect } from "react";
+import React, { useState, Fragment, useEffect, Component } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Loading from "../components/Loading";
-import { FormattedMessage, useIntl } from "react-intl";
 import axios from "axios";
-import { useCookies } from 'react-cookie';
 import faker from "faker";
-import { useHistory } from "react-router-dom";
+import { withCookies } from 'react-cookie';
+import { FormattedMessage, injectIntl } from "react-intl";
+import { withRouter } from "react-router-dom";
 
 
-function CreateRoom(){
-    const intl = useIntl();
-    const fibonnaciValues = [1,2,3,5,8,13,21,40,100];
-    const [ maxValue, setMaxValue ] = useState(fibonnaciValues.length - 1);
-    const [ roomName, setRoomName ] = useState("");
-    const [ loading, setLoading ] = useState(true);
-    const [ includeUnknownCard, setIncludeUnknownCard ] = useState(false);
-    const [ includeCoffeeCard, setIncludeCoffeeCard ] = useState(false);
-    const [ scrumCardsCookie, setScrumCardsCookie, removeScrumCardsCookie ] = useCookies('scrum_cards');
-    const history = useHistory();
+class CreateRoom extends Component{
+    constructor(props){
+        super(props);
 
-    const handleChangeMaxValue = (e) => setMaxValue(e.target.value);
-    const handleRoomName = (e) => setRoomName(e.target.value);
-    const handleChangeUnknownCard = (e) => setIncludeUnknownCard(e.target.checked); 
-    const handleChangeCoffeeCard = (e) => setIncludeCoffeeCard(e.target.checked);
+        this.fibonnaciValues = [1,2,3,5,8,13,21,40,100];
 
-    const createGuestUser = () => {
+        this.state = {
+            includeUnknownCard: false,
+            includeCoffeeCard: false,
+            loading: true,
+            maxValue: (this.fibonnaciValues.length - 1),
+            roomName: "",
+        }
+    }
+
+    createGuestUser = () => {
+        const { cookies } = this.props;
         const userNameSufix = faker.random.alphaNumeric(8);
         const userName = `guest_${userNameSufix}`;
         axios.post("/api/users/", { userName: userName }).then((err, res) => {
-            setScrumCardsCookie("user_guest_name", userName);
+            cookies.set("user_guest_name", userName);
         }).finally(() => {
-            setLoading(false);
+            this.setState({"loading": false});
         })
     }
 
-    useEffect(() => {
-        if(!("user_guest_name" in scrumCardsCookie)){
-            createGuestUser();
+    componentDidMount(){
+        const { cookies } = this.props;
+        const scrumCardsCookie = cookies.get("user_guest_name") || null;
+        if(scrumCardsCookie != null){
+            this.createGuestUser();
         }else{
-            const userName = scrumCardsCookie['user_guest_name'];
+            const userName = scrumCardsCookie;
             axios.get("/api/users/", { name: userName }).then((data) => {
                 if(data == undefined){
-                    removeScrumCardsCookie("user_guest_name");    
-                    createGuestUser();
+                    cookies.remove("user_guest_name", null);
+                    this.createGuestUser();
                 }
             }).catch(() => {
-                removeScrumCardsCookie("user_guest_name");
+                cookies.remove("user_guest_name", null);
             }).finally(() => {
-                setLoading(false);
+                this.setState({"loading": false});
             })
             
         }
-    }, [loading]);
+    }
 
-    const handleSubmit = function(e){
+    handleChangeMaxValue = (e) => this.setState({ "maxValue": e.target.value});
+    handleRoomName = (e) => this.setState({ "roomName": e.target.value});
+    handleChangeUnknownCard = (e) => this.setState({ "includeUnknownCard": e.target.checked});
+    handleChangeCoffeeCard = (e) => this.setState({ "includeCoffeeCard": e.target.checked});
+    handleSubmit = (e) => {
         e.preventDefault();
+        const { cookies, history } = this.props;
+        const { roomName, maxValue, includeCoffeeCard, includeUnknownCard } = this.state;
 
-        setLoading(true);
-        const userName = scrumCardsCookie['user_guest_name'];
+        this.setState({"loading": true});
+        const userName = cookies.get('user_guest_name');
         axios.post("/api/rooms/", { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner: userName }).then((res) => {
             const roomUri = res.data;
             history.push(`/room/${roomUri}`)
         }).catch(() => {
             history.push(`/error`)
         }).finally(() => {
-            setLoading(false);
+            this.setState({"loading": false});
         })
     }
 
-    return (
-        <Fragment>
-            { loading && <Loading /> }
+    render(){
+        const { intl } = this.props;
+        const { loading, maxValue } = this.state;
+        return (
+            <Fragment>
+                { loading && <Loading /> }
 
-            { !loading && <Form onSubmit={ handleSubmit }>
-                <Form.Group>
-                    <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
-                    <Form.Control type="text" name="roomName" onChange={ handleRoomName } />
-                    <Form.Label><FormattedMessage id='createRoom.maxValue' />: { fibonnaciValues[maxValue] }</Form.Label>
-                    <Form.Range onChange={ handleChangeMaxValue } min="1" max={fibonnaciValues.length - 1} step="1" value={maxValue} />
-                    <Form.Check onChange={ handleChangeUnknownCard } name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
-                    <Form.Check onChange={ handleChangeCoffeeCard } name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
-                </Form.Group>
-                <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
-            </Form> }
-        </Fragment>
-    );
+                { !loading && <Form onSubmit={ this.handleSubmit }>
+                    <Form.Group>
+                        <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
+                        <Form.Control type="text" name="roomName" onChange={ this.handleRoomName } />
+                        <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonnaciValues[maxValue] }</Form.Label>
+                        <Form.Range onChange={ this.handleChangeMaxValue } min="1" max={ this.fibonnaciValues.length - 1 } step="1" value={maxValue} />
+                        <Form.Check onChange={ this.handleChangeUnknownCard } name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
+                        <Form.Check onChange={ this.handleChangeCoffeeCard } name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
+                    </Form.Group>
+                    <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
+                </Form> }
+            </Fragment>
+        );
+    }
 }
 
-export default CreateRoom;
+export default withRouter(withCookies(injectIntl(CreateRoom)));

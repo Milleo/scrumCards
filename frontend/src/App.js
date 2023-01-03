@@ -10,6 +10,7 @@ import Container from 'react-bootstrap/Container';
 import CreateRoom from './layouts/CreateRoom';
 import Main from "./layouts/Main";
 import Room from "./layouts/Room";
+import SignUp from "./layouts/SignUp";
 import NoMatch from "./layouts/NoMatch";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { CookiesProvider } from 'react-cookie';
@@ -44,6 +45,7 @@ function App(){
                                     <Route exact path="/"><Main /></Route>
                                     <Route path="/newRoom"><CreateRoom /></Route>
                                     <Route path="/room/:roomURI"><Room /></Route>
+                                    <Route path="/signup"><SignUp /></Route>
                                     <Route path="*"><NoMatch /></Route>
                                 </Switch>
                             </Container>

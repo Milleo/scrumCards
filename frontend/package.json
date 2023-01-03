@@ -9,6 +9,7 @@
     "axios": "^0.23.0",
     "bootstrap": "^5.1.1",
     "faker": "^5.5.3",
+    "formik": "^2.2.9",
     "js-cookie": "^3.0.1",
     "react": "^17.0.2",
     "react-bootstrap": "^2.0.0-rc.0",
@@ -21,7 +22,8 @@
     "socket.io-client": "^4.5.4",
     "styled-components": "^5.3.1",
     "universal-cookie": "^4.0.4",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "yup": "^0.32.11"
   },
   "scripts": {
     "start": "react-scripts start",

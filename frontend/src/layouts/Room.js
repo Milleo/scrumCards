@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Card } from "../components";
-import { useParams, useHistory } from "react-router-dom"
+import { useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import io from 'socket.io-client';
 

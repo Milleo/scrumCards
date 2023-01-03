@@ -1,7 +1,5 @@
-import Button from "react-bootstrap/Button";
-import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import { FormattedMessage, useIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { Link } from "react-router-dom";
 
 

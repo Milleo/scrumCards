@@ -97,24 +97,30 @@ describe("Round endpoints", () => {
     });
 
     it("Create multiple rounds and keep the correct value of order", async () => {
+        const responseRoomCreation = await request(app)
+            .post("/rooms")
+            .set("Authorization", ownerJWT)
+            .send(roomPayload);
+        const newRoomURI = responseRoomCreation.body.uri;
+
         const TEST_CASES = 5;
         for(let i = 0; i < TEST_CASES; i++){
             await request(app)
-                .post(`/rooms/${roomURI}/round/start/`)
+                .post(`/rooms/${newRoomURI}/round/start/`)
                 .set("Authorization", ownerJWT)
                 .send({});
         }
 
-        const getRoom = await db.Room.findOne({ where: { uri: roomURI }});
+        const getRoom = await db.Room.findOne({ where: { uri: newRoomURI }});
 
         let checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
         expect(checkOrder.order).toBe(TEST_CASES);
 
-        await request(app).delete(`/rooms/${roomURI}/round/${checkOrder.uuid}`).set("Authorization", ownerJWT);
+        await request(app).delete(`/rooms/${newRoomURI}/round/${checkOrder.uuid}`).set("Authorization", ownerJWT);
         checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
         expect(checkOrder.order).toBe(TEST_CASES - 1);
 
-        await request(app).post(`/rooms/${roomURI}/round/start/`).set("Authorization", ownerJWT).send({});
+        await request(app).post(`/rooms/${newRoomURI}/round/start/`).set("Authorization", ownerJWT).send({});
         checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
         expect(checkOrder.order).toBe(TEST_CASES);
     })

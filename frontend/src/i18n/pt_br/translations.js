@@ -11,7 +11,10 @@ const translations = {
     "createRoom.includeUnknownCard": "Incluir carta \"?\"",
     "createRoom.includeCoffeeCard": "Incluir carta café",
     "validations.required": "Campo obrigatório",
-    "validations.invalidEmail": "Conta de e-mail inválida"
+    "validations.invalidEmail": "Conta de e-mail inválida",
+    "validations.passwordMatch": "As senhas não conferem",
+    "validation.userNameFormat": "Nome de usuário deve apenas conter apenas os seguintes caracteres: letras, números e underline",
+    "validation.passwordFormat": "A senha deve ter no mínimo 8 caracteres (e no máximo 60) e deve conter letras, números e símbolos especiais"
 }
 
 export default translations;

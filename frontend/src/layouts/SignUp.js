@@ -10,8 +10,7 @@ import FormField from "../components/FormField";
 
 const SignUp = () => {
     const history = useHistory();
-    const intl = useIntl();
-    const t = intl.formatMessage;
+    const t = useIntl().formatMessage;
     const [ loading, setLoading ] = useState(false);
     const initialValues = {
         name: "",

@@ -11,6 +11,7 @@ import FormField from "../components/FormField";
 const SignUp = () => {
     const history = useHistory();
     const intl = useIntl();
+    const t = intl.formatMessage;
     const [ loading, setLoading ] = useState(false);
     const initialValues = {
         name: "",
@@ -21,29 +22,28 @@ const SignUp = () => {
     }
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3)
-            .max(100)
-            .required(intl.formatMessage({ id: "validations.required" })),
+            .min(3, t({ id: "validations.minChar" }, { qty: 3 }))
+            .max(100, t({ id: "validations.maxChar" }, { qty: 100 }))
+            .required(t({ id: "validations.required" })),
         userName: Yup.string()
-            .min(3)
-            .max(50)
-            .required(intl.formatMessage({ id: "validations.required" }))
-            .matches(/^([a-z0-9\_]*)$/i, intl.formatMessage({ id: "validation.userNameFormat" })),
+            .min(3, t({ id: "validations.minChar" }, { qty: 3 }))
+            .max(50, t({ id: "validations.maxChar" }, { qty: 50 }))
+            .required(t({ id: "validations.required" }))
+            .matches(/^([a-z0-9\_]*)$/i, t({ id: "validations.userNameFormat" })),
         email: Yup.string()
             .max(75)
-            .email(intl.formatMessage({ id: "validations.invalidEmail" }))
-            .required(intl.formatMessage({ id: "validations.required" })),
+            .max(75, t({ id: "validations.maxChar" }, { qty: 75 }))
+            .email(t({ id: "validations.invalidEmail" }))
+            .required(t({ id: "validations.required" })),
         password: Yup.string()
-            .min(8)
-            .max(60)
             .matches(
-                /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?& ]{8,60}$/,
-                intl.formatMessage({ id: "validation.passwordFormat"})
+                /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?& ]{8}$/,
+                t({ id: "validations.passwordFormat"})
             )
-            .required(intl.formatMessage({ id: "validations.required" })),
+            .required(t({ id: "validations.required" })),
         passwordConfirmation: Yup.string()
-            .required(intl.formatMessage({ id: "validations.required" }))
-            .oneOf([Yup.ref("password"), null], intl.formatMessage({ id: "validations.passwordMatch" }))
+            .required(t({ id: "validations.required" }))
+            .oneOf([Yup.ref("password"), null], t({ id: "validations.passwordMatch" }))
 
     });
     const signUpSubmit = (values) => {
@@ -59,7 +59,7 @@ const SignUp = () => {
             history.push("/login");
         }).catch((err) => {
             console.log(err);
-        }).finally(() => setTimeout(() => setLoading(false), 5000));
+        }).finally(() => setLoading(false));
     }
 
     return(

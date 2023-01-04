@@ -18,8 +18,8 @@ const Header = (props) => {
                         </Nav>
                     </Col>
                     <Col xs="12" className="d-flex justify-content-end">
-                        <Link to="/login" component={Button} size="sm" variant="secondary" style={{ marginRight: "10px" }}><FormattedMessage id="main.login" /></Link>
-                        <Link to="/signup" component={Button} size="sm" variant="primary"><FormattedMessage id="main.signup" /></Link>
+                        <Link to="/login" className="btn btn-secondary btn-sm" style={{ marginRight: "10px" }}><FormattedMessage id="main.login" /></Link>
+                        <Link to="/signup" className="btn btn-primary btn-sm" ><FormattedMessage id="main.signup" /></Link>
                     </Col>
                 </Row>
             </Container>

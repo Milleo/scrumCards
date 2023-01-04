@@ -51,11 +51,12 @@ const UserController = {
         if(!errors.isEmpty()){
             return res.status(status.BAD_REQUEST).send({ errors: errors.array() });
         }
-        const { userName, email, password } = req.body;
+        const { name, userName, email, password } = req.body;
         const salt = bcrypt.genSaltSync(10);
         const passwdHash = bcrypt.hashSync(password, salt);
 
         db.User.create({
+            name: name,
             userName: userName,
             email: email,
             password: passwdHash,

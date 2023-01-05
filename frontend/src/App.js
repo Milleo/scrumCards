@@ -1,6 +1,6 @@
-    import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { IntlProvider } from 'react-intl';
-import translations from "./i18n/pt_br/translations";
+import translations from "./i18n/pt-br/translations";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ThemeProvider } from 'styled-components';
 import { lightTheme, darkTheme } from './themes/theme';

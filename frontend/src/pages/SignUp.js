@@ -36,7 +36,7 @@ const SignUp = () => {
             .required(t({ id: "validations.required" })),
         password: Yup.string()
             .matches(
-                /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?& ]{8}$/,
+                /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?& ]{8,}$/,
                 t({ id: "validations.passwordFormat"})
             )
             .required(t({ id: "validations.required" })),
@@ -71,8 +71,8 @@ const SignUp = () => {
                             <FormField name="name" label="Nome" onChange={handleChange} errors={errors} values={values} />
                             <FormField name="email" label="E-mail" onChange={handleChange} errors={errors} values={values} />
                             <FormField name="userName" label="Nome de usuário" onChange={handleChange} errors={errors} values={values} />
-                            <FormField name="password" password label="Senha" onChange={handleChange} errors={errors} values={values} />
-                            <FormField name="passwordConfirmation" password label="Confirmação de senha" onChange={handleChange} errors={errors} values={values} />
+                            <FormField name="password" password label="Password" onChange={handleChange} errors={errors} values={values} />
+                            <FormField name="passwordConfirmation" password label="Password confirmation" onChange={handleChange} errors={errors} values={values} />
                             <Form.Group className="mb-3">
                                 <Button type="submit"><FormattedMessage id="signup.submitButton" /></Button>
                             </Form.Group>

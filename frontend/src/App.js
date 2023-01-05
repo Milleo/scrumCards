@@ -7,11 +7,11 @@ import { lightTheme, darkTheme } from './themes/theme';
 import { GlobalStyles } from './themes/global';
 import { Header } from "./components";
 import Container from 'react-bootstrap/Container';
-import CreateRoom from './layouts/CreateRoom';
-import Main from "./layouts/Main";
-import Room from "./layouts/Room";
-import SignUp from "./layouts/SignUp";
-import NoMatch from "./layouts/NoMatch";
+import CreateRoom from './pages/CreateRoom';
+import Main from "./pages/Main";
+import Room from "./pages/Room";
+import SignUp from "./pages/SignUp";
+import NoMatch from "./pages/NoMatch";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { CookiesProvider } from 'react-cookie';
 

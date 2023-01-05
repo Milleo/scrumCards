@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, history } from "./test-utils";
 import { waitFor} from '@testing-library/react'
-import SignUp from "../layouts/SignUp";
+import SignUp from "../pages/SignUp";
 import userEvent from '@testing-library/user-event';
 import axios from "axios";
 

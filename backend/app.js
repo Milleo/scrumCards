@@ -38,9 +38,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api', (req, res) => {
+  res.redirect(307, req.originalUrl.replace("/api", ""));
+});
 app.use('/', indexRouter);
 app.use('/rooms', roomsRouter);
 app.use('/users', usersRouter);
+
 
 var port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);

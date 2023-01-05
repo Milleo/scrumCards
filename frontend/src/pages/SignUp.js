@@ -68,11 +68,11 @@ const SignUp = () => {
                     <Form noValidate onSubmit={handleSubmit}>
                         <h2><FormattedMessage id='signup.title' /></h2>
                         <fieldset disabled={loading}>
-                            <FormField name="name" label="Nome" onChange={handleChange} errors={errors} values={values} />
-                            <FormField name="email" label="E-mail" onChange={handleChange} errors={errors} values={values} />
-                            <FormField name="userName" label="Nome de usuário" onChange={handleChange} errors={errors} values={values} />
-                            <FormField name="password" password label="Password" onChange={handleChange} errors={errors} values={values} />
-                            <FormField name="passwordConfirmation" password label="Password confirmation" onChange={handleChange} errors={errors} values={values} />
+                            <FormField name="name" label={t({ id: "signup.name" })} onChange={handleChange} errors={errors} values={values} />
+                            <FormField name="email" label={t({ id: "signup.email" })} onChange={handleChange} errors={errors} values={values} />
+                            <FormField name="userName" label={t({ id: "signup.userName" })} onChange={handleChange} errors={errors} values={values} />
+                            <FormField name="password" password label={t({ id: "signup.password" })} onChange={handleChange} errors={errors} values={values} />
+                            <FormField name="passwordConfirmation" password label={t({ id: "signup.passwordConfirmation" })} onChange={handleChange} errors={errors} values={values} />
                             <Form.Group className="mb-3">
                                 <Button type="submit"><FormattedMessage id="signup.submitButton" /></Button>
                             </Form.Group>

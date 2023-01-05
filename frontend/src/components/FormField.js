@@ -5,8 +5,8 @@ const FormField = (props) => {
     let fieldType = password?"password":"text";
     
     return <Form.Group className="mb-3">
-        <Form.Label>{label}</Form.Label>
-        <Form.Control isInvalid={!!errors[name]} name={name} value={values[name]} onChange={onChange} type={fieldType} />
+        <Form.Label htmlFor={name}>{label}</Form.Label>
+        <Form.Control aria-label={name} isInvalid={!!errors[name]} name={name} value={values[name]} onChange={onChange} type={fieldType} />
         <Form.Control.Feedback type="invalid">{errors[name]}</Form.Control.Feedback>
     </Form.Group>
 }

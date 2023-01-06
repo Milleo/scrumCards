@@ -120,29 +120,33 @@ describe("Sing up page tests", () => {
         const passwordField = getByLabelText("Password");
         const defaultErrorMessage = "The password should have minimum of 8 chars and should contain letters(lowercase and uppercase), numbers and special symbols";
         const submitButton = getByRole("button", { name: "Sign up" });
+        const feedback = passwordField.parentElement.querySelector(".invalid-feedback");
 
         await userEvent.type(passwordField, "invalidpassword");
-        userEvent.click(submitButton);
+        await userEvent.click(submitButton);
         await waitFor(() => {
-            expect(passwordField.closest("div")).toHaveTextContent(defaultErrorMessage);
+            expect(feedback).toHaveTextContent(defaultErrorMessage);
         });
 
+        userEvent.clear(passwordField);
         await userEvent.type(passwordField, "passwordWithUppercase");
-        userEvent.click(submitButton);
+        await userEvent.click(submitButton);
         await waitFor(() => {
-            expect(passwordField.closest("div")).toHaveTextContent(defaultErrorMessage);
+            expect(feedback).toHaveTextContent(defaultErrorMessage);
         });
 
+        userEvent.clear(passwordField);
         await userEvent.type(passwordField, "passwordWithNumbers12313");
-        userEvent.click(submitButton);
+        await userEvent.click(submitButton);
         await waitFor(() => {
-            expect(passwordField.closest("div")).toHaveTextContent(defaultErrorMessage);
+            expect(feedback).toHaveTextContent(defaultErrorMessage);
         });
 
+        userEvent.clear(passwordField);
         await userEvent.type(passwordField, "passwordWithNumbers12313!@#");
-        userEvent.click(submitButton);
+        await userEvent.click(submitButton);
         await waitFor(() => {
-            expect(passwordField.closest("div")).toHaveTextContent(defaultErrorMessage);
+            expect(feedback).toBeEmptyDOMElement();
         });
     });
     it("Test password confirmation field", async () => {

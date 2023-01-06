@@ -20,8 +20,10 @@ const UserValidator = {
         },
     }),
     checkUserName: checkSchema({
-        isString: { errorMessage: "Username should be string" },
-        exists: { errorMessage: "Username is required" },
+        userName: {
+            isString: { errorMessage: "Username should be string" },
+            exists: { errorMessage: "Username is required" },
+        }
     }),
     create: checkSchema({
         password: {

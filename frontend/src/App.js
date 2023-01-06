@@ -8,6 +8,7 @@ import { GlobalStyles } from './themes/global';
 import { Header } from "./components";
 import Container from 'react-bootstrap/Container';
 import CreateRoom from './pages/CreateRoom';
+import Login from "./pages/Login";
 import Main from "./pages/Main";
 import Room from "./pages/Room";
 import SignUp from "./pages/SignUp";
@@ -46,6 +47,7 @@ function App(){
                                     <Route path="/newRoom"><CreateRoom /></Route>
                                     <Route path="/room/:roomURI"><Room /></Route>
                                     <Route path="/signup"><SignUp /></Route>
+                                    <Route path="/login"><Login /></Route>
                                     <Route path="*"><NoMatch /></Route>
                                 </Switch>
                             </Container>

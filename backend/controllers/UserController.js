@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const status = require("http-status");
-const { Op, where } = require("sequelize");
 
 
 const UserController = {

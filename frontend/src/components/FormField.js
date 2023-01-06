@@ -6,7 +6,7 @@ const FormField = (props) => {
     
     return <Form.Group className="mb-3">
         <Form.Label htmlFor={name}>{label}</Form.Label>
-        <Form.Control aria-label={name} isInvalid={!!errors[name]} name={name} value={values[name]} onChange={onChange} type={fieldType} />
+        <Form.Control id={name} aria-label={name} isInvalid={!!errors[name]} name={name} value={values[name]} onChange={onChange} type={fieldType} />
         <Form.Control.Feedback type="invalid">{errors[name]}</Form.Control.Feedback>
     </Form.Group>
 }

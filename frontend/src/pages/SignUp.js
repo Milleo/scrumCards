@@ -30,7 +30,6 @@ const SignUp = () => {
             .required(t({ id: "validations.required" }))
             .matches(/^([a-z0-9\_]*)$/i, t({ id: "validations.userNameFormat" })),
         email: Yup.string()
-            .max(75)
             .max(75, t({ id: "validations.maxChar" }, { qty: 75 }))
             .email(t({ id: "validations.invalidEmail" }))
             .required(t({ id: "validations.required" })),

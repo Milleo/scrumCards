@@ -11,7 +11,7 @@ const Login = (props) => {
     const { onLogin } = props;
     const t = useIntl().formatMessage;
     const [ loading, setLoading ] = useState(false);
-    const initialValues = { lgoin: "", password: "" };
+    const initialValues = { login: "", password: "" };
     const history = useHistory();
     const validationSchema = Yup.object().shape({
         login: Yup.string().required(t({ id: "validations.required" })),
@@ -19,6 +19,7 @@ const Login = (props) => {
     });
 
     const loginSubmit = (values) => {
+        setLoading(true);
         const loginPayload = { password: values.password };
         if(values.login.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)){
             loginPayload.email = values.login;
@@ -30,13 +31,14 @@ const Login = (props) => {
                 const jwtToken = res.headers["x-access-token"];
                 localStorage.setItem('jwtToken', jwtToken);
                 axios.defaults.headers.common['Authorization'] = 'Bearer'+jwtToken;
-                console.log(onLogin);
                 onLogin({
                     name: res.data.name,
                     userName: res.data.userName,
                     email: res.data.email
-                })
-                history.push("/")
+                });
+                history.push("/");
+            }).finally(() => {
+                setLoading(false);
             })
     }
 

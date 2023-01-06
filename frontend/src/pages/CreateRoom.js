@@ -13,13 +13,13 @@ class CreateRoom extends Component{
     constructor(props){
         super(props);
 
-        this.fibonnaciValues = [1,2,3,5,8,13,21,40,100];
+        this.fibonacci = [1,2,3,5,8,13,21,34,55,89];
 
         this.state = {
             includeUnknownCard: false,
             includeCoffeeCard: false,
             loading: true,
-            maxValue: (this.fibonnaciValues.length - 1),
+            maxValue: (this.fibonacci.length - 1),
             roomName: "",
         }
     }
@@ -52,7 +52,6 @@ class CreateRoom extends Component{
             }).finally(() => {
                 this.setState({"loading": false});
             })
-            
         }
     }
 
@@ -80,23 +79,21 @@ class CreateRoom extends Component{
     render(){
         const { intl } = this.props;
         const { loading, maxValue } = this.state;
-        return (
-            <Fragment>
-                { loading && <Loading /> }
+        
+        if(loading)
+            return <Loading />
 
-                { !loading && <Form onSubmit={ this.handleSubmit }>
-                    <Form.Group>
-                        <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
-                        <Form.Control type="text" name="roomName" onChange={ this.handleRoomName } />
-                        <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonnaciValues[maxValue] }</Form.Label>
-                        <Form.Range onChange={ this.handleChangeMaxValue } min="1" max={ this.fibonnaciValues.length - 1 } step="1" value={maxValue} />
-                        <Form.Check onChange={ this.handleChangeUnknownCard } name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
-                        <Form.Check onChange={ this.handleChangeCoffeeCard } name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
-                    </Form.Group>
-                    <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
-                </Form> }
-            </Fragment>
-        );
+        return <Form onSubmit={ this.handleSubmit }>
+            <Form.Group>
+                <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
+                <Form.Control type="text" name="roomName" onChange={ this.handleRoomName } />
+                <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonacci[maxValue] }</Form.Label>
+                <Form.Range onChange={ this.handleChangeMaxValue } min="1" max={ this.fibonacci.length - 1 } step="1" value={maxValue} />
+                <Form.Check onChange={ this.handleChangeUnknownCard } name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
+                <Form.Check onChange={ this.handleChangeCoffeeCard } name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
+            </Form.Group>
+            <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
+        </Form>;
     }
 }
 

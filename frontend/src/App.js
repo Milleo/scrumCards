@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IntlProvider } from 'react-intl';
-import translations from "./i18n/pt-br/translations";
+import { enTranslations, ptBrTranslations } from "./i18n";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ThemeProvider } from 'styled-components';
 import { lightTheme, darkTheme } from './themes/theme';
@@ -13,9 +13,11 @@ import { CookiesProvider } from 'react-cookie';
 
 
 function App(){
+    let userLang = (navigator.language || navigator.userLanguage).toLowerCase(); 
     const [theme, setTheme] = useState('light');
-    const [language, setLanguage] = useState('pt-br');
-
+    const [language, setLanguage] = useState(userLang);
+    const [translations, setTranslations] = useState(enTranslations);
+    const onChangeLang = (e, { target }) => setLanguage(target.dataset.country);
     const toggleTheme = () => {
         if(theme === "light"){
             setTheme("dark");
@@ -23,10 +25,13 @@ function App(){
             setTheme("light");
         }
     }
-
-    const onChangeLang = (e, { target }) => {
-        setLanguage(target.dataset.country);
-    }
+    
+    useEffect(() => {
+        if(language == "pt-br")
+            setTranslations(ptBrTranslations);
+        else   
+            setTranslations(enTranslations);
+    }, [language])
 
     return (
         <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>

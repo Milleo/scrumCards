@@ -85,7 +85,6 @@ const SignUp = () => {
             <Formik validateOnChange={false} validationSchema={validationSchema} onSubmit={signUpSubmit} initialValues={initialValues}>
                 {({ errors, handleBlur, handleSubmit, touched, values, handleChange }) => (
                     <Form noValidate onSubmit={handleSubmit}>
-                        {JSON.stringify(touched)}
                         <h2><FormattedMessage id='signup.title' /></h2>
                         <fieldset disabled={loading}>
                             <FormField name="name" label={t({ id: "signup.name" })} onBlur={handleBlur} onChange={handleChange} errors={errors} values={values} touched={touched} />

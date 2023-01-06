@@ -17,7 +17,18 @@ function App(){
     const [theme, setTheme] = useState('light');
     const [language, setLanguage] = useState(userLang);
     const [translations, setTranslations] = useState(enTranslations);
-    const onChangeLang = (e, { target }) => setLanguage(target.dataset.country);
+    const [user, setUser] = useState({ auth: false, name: "", userName: "", email: "" });
+
+    const handleChangeLang = (e, { target }) => setLanguage(target.dataset.country);
+    const handleLogin = (data) => {
+        console.log(data);
+        setUser({
+            auth: true,
+            name: data.name,
+            userName: data.userName,
+            email: data.email
+        })
+    }
     const toggleTheme = () => {
         if(theme === "light"){
             setTheme("dark");
@@ -40,14 +51,14 @@ function App(){
                 <IntlProvider messages={translations} locale={language} defaultLocale="en">
                     <Router>
                         <Container fluid style={{ height: "100vh" }}>
-                            <Header selectedLanguage={language} onChangeLang={ onChangeLang } toggleTheme={ toggleTheme } />
+                            <Header selectedLanguage={language} onChangeLang={ handleChangeLang } toggleTheme={ toggleTheme } />
                             <Container>
                                 <Switch>
                                     <Route exact path="/"><Main /></Route>
                                     <Route path="/newRoom"><CreateRoom /></Route>
                                     <Route path="/room/:roomURI"><Room /></Route>
                                     <Route path="/signup"><SignUp /></Route>
-                                    <Route path="/login"><Login /></Route>
+                                    <Route path="/login"><Login onLogin={handleLogin} /></Route>
                                     <Route path="*"><NoMatch /></Route>
                                 </Switch>
                             </Container>

@@ -7,7 +7,8 @@ import axios from "axios";
 import FormField from "../components/FormField";
 import { Link, useHistory } from 'react-router-dom';
 
-const Login = () => {
+const Login = (props) => {
+    const { onLogin } = props;
     const t = useIntl().formatMessage;
     const [ loading, setLoading ] = useState(false);
     const initialValues = { lgoin: "", password: "" };
@@ -29,6 +30,12 @@ const Login = () => {
                 const jwtToken = res.headers["x-access-token"];
                 localStorage.setItem('jwtToken', jwtToken);
                 axios.defaults.headers.common['Authorization'] = 'Bearer'+jwtToken;
+                console.log(onLogin);
+                onLogin({
+                    name: res.data.name,
+                    userName: res.data.userName,
+                    email: res.data.email
+                })
                 history.push("/")
             })
     }

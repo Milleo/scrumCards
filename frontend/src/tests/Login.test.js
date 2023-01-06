@@ -19,7 +19,7 @@ describe("Sing up page tests", () => {
         }));
     });
     it("Page loaded", () => {
-        const { container, getByRole } = render(<Login />);
+        const { container, getByRole } = render(<Login onLogin={(data) => console.log(data)} />);
     
         expect(container.querySelector("h2")).toHaveTextContent("Login");
         expect(container.querySelector("input[name='login']")).toBeInTheDocument();
@@ -27,7 +27,7 @@ describe("Sing up page tests", () => {
         expect(getByRole("button", { name: "Enter" })).toBeInTheDocument();
     });
     it("Login successfully with e-mail account", async () => {
-        const { getByLabelText, getByRole } = render(<Login />);
+        const { getByLabelText, getByRole } = render(<Login onLogin={(data) => console.log(data)} />);
         const submitButton = getByRole("button", { name: "Enter" });
         const loginPayload = { login: "jest_user@gmail.com", password: "SomeStrongPassword#!123" }
 
@@ -42,7 +42,7 @@ describe("Sing up page tests", () => {
         });
     });
     it("Login successfully with username", async () => {
-        const { getByLabelText, getByRole } = render(<Login />);
+        const { getByLabelText, getByRole } = render(<Login onLogin={(data) => console.log(data)} />);
         const submitButton = getByRole("button", { name: "Enter" });
         const loginPayload = { login: "jest_user_1", password: "SomeStrongPassword#!123" }
 

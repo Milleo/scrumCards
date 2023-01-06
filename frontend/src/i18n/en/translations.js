@@ -17,6 +17,8 @@ const translations = {
     "createRoom.includeCoffeeCard": "Include coffee card",
     "validations.required": "Field required",
     "validations.invalidEmail": "Invalid e-mail account",
+    "validations.emailInUse": "E-mail is already registered",
+    "validations.userNameInUse": "Username already taken",
     "validations.passwordMatch": "Passwords don't match",
     "validations.userNameFormat": "The username should only contains: letters, digits and underline",
     "validations.passwordFormat": "The password should have minimum of 8 chars and should contain letters(lowercase and uppercase), numbers and special symbols",

@@ -28,11 +28,33 @@ const SignUp = () => {
             .min(3, t({ id: "validations.minChar" }, { qty: 3 }))
             .max(50, t({ id: "validations.maxChar" }, { qty: 50 }))
             .required(t({ id: "validations.required" }))
-            .matches(/^([a-z0-9\_]*)$/i, t({ id: "validations.userNameFormat" })),
+            .matches(/^([a-z0-9\_]*)$/i, t({ id: "validations.userNameFormat" }))
+            .test("checkUserNameUnique", t({ id: "validations.userNameInUse" }), (value) => {
+                if(value){
+                    return new Promise((resolve, reject) => {
+                        axios.post("/api/users/checkUserName", { userName: value }).then((res) => {
+                            resolve(res.status == 200)
+                        }).catch((err) => {
+                            resolve(false);
+                        })
+                    });
+                }
+            }),
         email: Yup.string()
+            .required(t({ id: "validations.required" }))
             .max(75, t({ id: "validations.maxChar" }, { qty: 75 }))
             .email(t({ id: "validations.invalidEmail" }))
-            .required(t({ id: "validations.required" })),
+            .test("checkEmailUnique", t({ id: "validations.emailInUse" }), (value) => {
+                if(value){
+                    return new Promise((resolve, reject) => {
+                        axios.post("/api/users/checkEmail", { email: value }).then((res) => {
+                            resolve(res.status == 200)
+                        }).catch((err) => {
+                            resolve(false);
+                        })
+                    });
+                }
+            }),
         password: Yup.string()
             .matches(
                 /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?& ]{8,}$/,
@@ -56,7 +78,7 @@ const SignUp = () => {
         axios.post("/api/users/signup", submitPayload).then(() => {
             history.push("/login");
         }).catch((err) => {
-            console.log(err);
+            console.error(err);
         }).finally(() => setLoading(false));
     }
 

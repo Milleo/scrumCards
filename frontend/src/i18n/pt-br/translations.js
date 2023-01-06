@@ -17,6 +17,8 @@ const translations = {
     "createRoom.includeCoffeeCard": "Incluir carta café",
     "validations.required": "Campo obrigatório",
     "validations.invalidEmail": "Conta de e-mail inválida",
+    "validations.emailInUse": "E-mail já cadastrado",
+    "validations.userNameInUse": "Nome de usuário indisponível",
     "validations.passwordMatch": "As senhas não conferem",
     "validations.userNameFormat": "Nome de usuário deve apenas conter: letras, números e underline",
     "validations.passwordFormat": "A senha deve ter no mínimo 8 caracteres (e no máximo 60) e deve conter letras, números e símbolos especiais",

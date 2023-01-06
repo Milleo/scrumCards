@@ -162,5 +162,51 @@ describe("Sing up page tests", () => {
             expect(passwordConfirmationField.closest("div")).toHaveTextContent("Passwords don't match");
         });
     });
+    it("Tries to sign up with an email already in use", async() => {
+        const formPayload = {
+            name: "Jest user",
+            userName: "jest_user_2",
+            email: "jest_user@gmail.com",
+            password: "SomeStrongPassword#!123"
+        }
+        const { getByRole, getByLabelText } = render(<SignUp />);
+        const submitButton = getByRole("button", { name: "Sign up" });
+        const feedback = getByRole("textbox", { name: "email" }).parentElement.querySelector(".invalid-feedback");
+
+        await userEvent.type(getByRole("textbox", { name: "name" }), formPayload.name);
+        await userEvent.type(getByRole("textbox", { name: "userName" }), formPayload.userName);
+        await userEvent.type(getByRole("textbox", { name: "email" }), formPayload.email);
+        await userEvent.type(getByLabelText("Password"), formPayload.password);
+        await userEvent.type(getByLabelText("Password confirmation"), formPayload.password);
+        userEvent.click(submitButton);
+
+        await waitFor(() => {
+            expect(history.location.pathname).toEqual('/');
+            expect(feedback).toHaveTextContent("E-mail is already registered");
+        });
+    });
+    it("Tries to sign up with an username already in use", async() => {
+        const formPayload = {
+            name: "Jest user",
+            userName: "jest_user_1",
+            email: "jest_user_2@gmail.com",
+            password: "SomeStrongPassword#!123"
+        }
+        const { getByRole, getByLabelText } = render(<SignUp />);
+        const submitButton = getByRole("button", { name: "Sign up" });
+        const feedback = getByRole("textbox", { name: "userName" }).parentElement.querySelector(".invalid-feedback");
+
+        await userEvent.type(getByRole("textbox", { name: "name" }), formPayload.name);
+        await userEvent.type(getByRole("textbox", { name: "userName" }), formPayload.userName);
+        await userEvent.type(getByRole("textbox", { name: "email" }), formPayload.email);
+        await userEvent.type(getByLabelText("Password"), formPayload.password);
+        await userEvent.type(getByLabelText("Password confirmation"), formPayload.password);
+        userEvent.click(submitButton);
+
+        await waitFor(() => {
+            expect(history.location.pathname).toEqual('/');
+            expect(feedback).toHaveTextContent("Username already taken");
+        });
+    })
 })
 

@@ -45,7 +45,7 @@ describe("User endpoints", () => {
         otherUser.email = "test2@test.com";
         const response = await request(app).post("/users/signup").send(otherUser);
         expect(response.statusCode).toBe(status.BAD_REQUEST);
-        expect(response.body.errors[0].msg).toBe("User name already taken");
+        expect(response.body.errors[0].msg).toBe("Username already taken");
     });
     it("Get User", async () => {
         const response = await request(app).get(`/users/${userNameTest}`);
@@ -80,6 +80,34 @@ describe("User endpoints", () => {
     it("Confirm user deletion", async () => {
         const response = await request(app).get(`/users/${userNameTest}`);
         expect(response.statusCode).toBe(status.NOT_FOUND);
+    });
+    it("Checks if e-mail already exists", async() => {
+        const payload = {
+            userName: "other_user123",
+            email: "other_user123@test.com",
+            password: "12345678"
+        };
+        await request(app).post("/users/signup").send(payload);
+        const response = await request(app).post(`/users/checkEmail`).send({ email: payload.email });
+        expect(response.statusCode).toBe(status.CONFLICT);
+    });
+    it("Checks if e-mail is available", async() => {
+        const response = await request(app).post(`/users/checkEmail`).send({ email: "anotherEmail@gmail.com" });
+        expect(response.statusCode).toBe(status.OK);
+    });
+    it("Checks if username already exists", async() => {
+        const payload = {
+            userName: "username_exists",
+            email: "username_exists@test.com",
+            password: "12345678"
+        };
+        await request(app).post("/users/signup").send(payload);
+        const response = await request(app).post(`/users/checkUsername`).send({ userName: payload.userName });
+        expect(response.statusCode).toBe(status.CONFLICT);
+    });
+    it("Checks if username is available", async() => {
+        const response = await request(app).post(`/users/checkUsername`).send({ userName: "validUserName" });
+        expect(response.statusCode).toBe(status.OK);
     });
     afterAll(async () => {
         await db.sequelize.close();

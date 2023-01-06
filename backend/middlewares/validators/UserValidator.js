@@ -12,6 +12,17 @@ const UserValidator = {
             }
         }
     }),
+    checkEmail: checkSchema({
+        email: {
+            errorMessage: "Invalid email address",
+            isEmail: { bail: true },
+            exists: { errorMessage: "Email is required" },
+        },
+    }),
+    checkUserName: checkSchema({
+        isString: { errorMessage: "Username should be string" },
+        exists: { errorMessage: "Username is required" },
+    }),
     create: checkSchema({
         password: {
             exists: { errorMessage: "Password is required" },
@@ -35,14 +46,14 @@ const UserValidator = {
             }
         },
         userName: {
-            isString: { errorMessage: "User name should be string" },
-            exists: { errorMessage: "User name is required" },
+            isString: { errorMessage: "Username should be string" },
+            exists: { errorMessage: "Username is required" },
             custom: {
                 options: (value) => {
                     return db.User.findOne({ where: { userName: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
-                                return Promise.reject("User name already taken");
+                                return Promise.reject("Username already taken");
                         })
                 }
             }
@@ -50,14 +61,14 @@ const UserValidator = {
     }),
     createGuest: checkSchema({
         userName: {
-            isString: { errorMessage: "User name should be string" },
-            exists: { errorMessage: "User name is required" },
+            isString: { errorMessage: "Username should be string" },
+            exists: { errorMessage: "Username is required" },
             custom: {
                 options: (value) => {
                     return db.User.findOne({ where: { userName: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
-                                return Promise.reject("User name already taken");
+                                return Promise.reject("Username already taken");
                         })
                 }
             }
@@ -78,14 +89,14 @@ const UserValidator = {
             }
         },
         userName: {
-            isString: { errorMessage: "User name should be string" },
-            exists: { errorMessage: "User name is required" },
+            isString: { errorMessage: "Username should be string" },
+            exists: { errorMessage: "Username is required" },
             custom: {
                 options: (value) => {
                     return db.User.findOne({ where: { userName: value }, paranoid: false })
                         .then((data) => {
                             if(data != null)
-                                return Promise.reject("User name already taken");
+                                return Promise.reject("Username already taken");
                         })
                 }
             }

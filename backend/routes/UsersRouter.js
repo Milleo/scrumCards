@@ -7,6 +7,8 @@ router.get('/:userName', UsersController.get);
 router.get('/', UsersController.list);
 router.post("/signup", UserValidator.create, UsersController.create);
 router.post("/guest", UserValidator.createGuest, UsersController.createGuest);
+router.post("/checkEmail", UserValidator.checkEmail, UsersController.checkEmail);
+router.post("/checkUserName", UserValidator.checkUserName, UsersController.checkUserName);
 router.post("/login", UserValidator.login, UsersController.login);
 router.put("/:uuid", UserValidator.update, UsersController.update);
 router.put("/:uuid/password", UserValidator.updatePassword, UsersController.updatePassword);

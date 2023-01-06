@@ -21,6 +21,24 @@ const UserController = {
             res.status(status.OK).send(result);
         }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))
     },
+    checkEmail: async (req, res) => {
+        const { email } = req.body;
+        db.User.findOne({ where: { email: email }}).then((result) => {
+            if(result == null)
+                return res.sendStatus(status.OK);
+
+            res.sendStatus(status.CONFLICT);
+        })
+    },
+    checkUserName: async (req, res) => {
+        const { userName } = req.body;
+        db.User.findOne({ where: { userName: userName }}).then((result) => {
+            if(result == null)
+                return res.sendStatus(status.OK);
+
+            res.sendStatus(status.CONFLICT);
+        })
+    },
     login: (req, res) => {
         const errors = validationResult(req);
         if(!errors.isEmpty()){

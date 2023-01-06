@@ -48,7 +48,7 @@ const UserController = {
         if(email != null)
             whereCondition = { email: email };
             
-        db.User.findOne({ where: whereCondition }).then((result) => {
+        db.User.findOne({ where: whereCondition }).then((result) => { 
             if(!bcrypt.compareSync(password, result.password))
                 return res.sendStatus(status.NOT_FOUND);
             
@@ -59,7 +59,7 @@ const UserController = {
                 }
                 
                 res.set("x-access-token", token);
-                res.sendStatus(status.OK);
+                res.status(status.OK).send({ name: result.name, email: result.email, userName: result.userName});
             })
         }).catch((err) => res.status(status.NOT_FOUND).send(err));
     },

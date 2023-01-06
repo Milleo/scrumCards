@@ -3,19 +3,38 @@ import { useIntl, FormattedMessage } from "react-intl";
 import { Formik } from 'formik';
 import { useState } from 'react';
 import * as Yup from 'yup';
+import axios from "axios";
 import FormField from "../components/FormField";
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 const Login = () => {
     const t = useIntl().formatMessage;
     const [ loading, setLoading ] = useState(false);
     const initialValues = { lgoin: "", password: "" };
+    const history = useHistory();
     const validationSchema = Yup.object().shape({
         login: Yup.string().required(t({ id: "validations.required" })),
         password: Yup.string().required(t({ id: "validations.required" })),
     });
+
+    const loginSubmit = (values) => {
+        const loginPayload = { password: values.password };
+        if(values.login.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)){
+            loginPayload.email = values.login;
+        }else{
+            loginPayload.userName = values.login;
+        }
+        axios.post("/api/users/login", loginPayload)
+            .then((res) => {
+                const jwtToken = res.headers["x-access-token"];
+                localStorage.setItem('jwtToken', jwtToken);
+                axios.defaults.headers.common['Authorization'] = 'Bearer'+jwtToken;
+                history.push("/")
+            })
+    }
+
     return <Row className="align-self-center" style={{ marginTop: "50px" }}>
-        <Formik validateOnChange={false} validationSchema={validationSchema} onSubmit={() => console.log(true)} initialValues={initialValues}>
+        <Formik validateOnChange={false} validationSchema={validationSchema} onSubmit={loginSubmit} initialValues={initialValues}>
             {({ errors, handleBlur, handleSubmit, touched, values, handleChange }) => (
                 <Form noValidate onSubmit={handleSubmit}>
                     <h2><FormattedMessage id='login.title' /></h2>

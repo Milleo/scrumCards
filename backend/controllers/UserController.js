@@ -50,7 +50,7 @@ const UserController = {
             
         db.User.findOne({ where: whereCondition }).then((result) => { 
             if(!bcrypt.compareSync(password, result.password))
-                return res.sendStatus(status.NOT_FOUND);
+                return res.sendStatus(status.NO_CONTENT);
             
             jwt.sign({ uuid: result.uuid, userName: result.userName }, process.env.JWT_SECRET_KEY, (err, token) => {
                 if(err){
@@ -61,7 +61,7 @@ const UserController = {
                 res.set("x-access-token", token);
                 res.status(status.OK).send({ name: result.name, email: result.email, userName: result.userName});
             })
-        }).catch((err) => res.status(status.NOT_FOUND).send(err));
+        }).catch((err) => res.status(status.NO_CONTENT).send(err));
     },
     create: (req,res) => {
         const errors = validationResult(req);

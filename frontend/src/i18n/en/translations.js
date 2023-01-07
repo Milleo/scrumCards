@@ -20,6 +20,8 @@ const translations = {
     "login.passwordField": "Password",
     "login.submitButton": "Enter",
     "login.forgotPassword": "Forgot your password?",
+    "login.invalidUser": "Invalid user or password",
+    "login.invalidAccount": "Invalid username or e-mail",
     "validations.required": "Field required",
     "validations.invalidEmail": "Invalid e-mail account",
     "validations.emailInUse": "E-mail is already registered",

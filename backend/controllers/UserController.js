@@ -13,7 +13,7 @@ const UserController = {
     },
     get: (req,res) => {
         const { userName } = req.params;
-        db.User.findOne({ where: { userName: userName }, attributes: ["uuid", "userName", "email" ]}).then((result) => {
+        db.User.findOne({ where: { userName: userName }, attributes: ["uuid", "userName", "email", "name" ]}).then((result) => {
             if(result == null)
                 return res.sendStatus(status.NOT_FOUND);
 
@@ -59,6 +59,12 @@ const UserController = {
                 }
                 
                 res.set("x-access-token", token);
+                res.cookie("jwt_token", token, {
+                    expires: new Date(Date.now() + 16 * 3600000),
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict'
+                })
                 res.status(status.OK).send({ name: result.name, email: result.email, userName: result.userName});
             })
         }).catch((err) => res.status(status.NO_CONTENT).send(err));

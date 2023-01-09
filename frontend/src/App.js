@@ -8,9 +8,9 @@ import { GlobalStyles } from './themes/global';
 import { Header } from "./components";
 import Container from 'react-bootstrap/Container';
 import { CreateRoom, Login, Main, Room, SignUp, NoMatch } from "./pages";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { CookiesProvider } from 'react-cookie';
-
+import { BrowserRouter as Router, Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { useCookies } from 'react-cookie';
+import axios from "axios";
 
 function App(){
     let userLang = (navigator.language || navigator.userLanguage).toLowerCase(); 
@@ -18,16 +18,24 @@ function App(){
     const [language, setLanguage] = useState(userLang);
     const [translations, setTranslations] = useState(enTranslations);
     const [user, setUser] = useState({ auth: false, name: "", userName: "", email: "" });
+    const [ cookies, setCookie, removeCookie ] = useCookies(["scrum_cards"]);
+    const history = useHistory();
 
     const handleChangeLang = (e, { target }) => setLanguage(target.dataset.country);
     const handleLogin = (data) => {
-        console.log(data);
         setUser({
-            auth: true,
             name: data.name,
             userName: data.userName,
             email: data.email
-        })
+        });
+        setCookie("userName", data.userName, {
+            expires: new Date(Date.now() + 16 * 3600000),
+            sameSite: "strict"
+        });
+    }
+    const handleLogout = () => {
+        setUser({ auth: false, name: "", userName: "", email: "" });
+        removeCookie("userName");
     }
     const toggleTheme = () => {
         if(theme === "light"){
@@ -38,6 +46,18 @@ function App(){
     }
     
     useEffect(() => {
+        if(user.userName == "" && cookies.userName != ""){
+            axios.get(`/api/users/${cookies.userName}`)
+            .then((res) => {
+                setUser({
+                    name: res.data.name,
+                    userName: res.data.userName,
+                    email: res.data.email
+                });
+            });
+        }
+    }, [])
+    useEffect(() => {
         if(language == "pt-br")
             setTranslations(ptBrTranslations);
         else   
@@ -46,26 +66,29 @@ function App(){
 
     return (
         <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
-            <CookiesProvider>
-                <GlobalStyles />
-                <IntlProvider messages={translations} locale={language} defaultLocale="en">
-                    <Router>
-                        <Container fluid style={{ height: "100vh" }}>
-                            <Header selectedLanguage={language} onChangeLang={ handleChangeLang } toggleTheme={ toggleTheme } />
-                            <Container>
-                                <Switch>
-                                    <Route exact path="/"><Main /></Route>
-                                    <Route path="/newRoom"><CreateRoom /></Route>
-                                    <Route path="/room/:roomURI"><Room /></Route>
-                                    <Route path="/signup"><SignUp /></Route>
-                                    <Route path="/login"><Login onLogin={handleLogin} /></Route>
-                                    <Route path="*"><NoMatch /></Route>
-                                </Switch>
-                            </Container>
+            <GlobalStyles />
+            <IntlProvider messages={translations} locale={language} defaultLocale="en">
+                <Router>
+                    <Container fluid style={{ height: "100vh" }}>
+                        <Header
+                            onLogout={ handleLogout }
+                            onChangeLang={ handleChangeLang }
+                            selectedLanguage={ language }
+                            toggleTheme={ toggleTheme }
+                            user={ user } />
+                        <Container>
+                            <Switch>
+                                <Route exact path="/"><Main /></Route>
+                                <Route path="/newRoom"><CreateRoom /></Route>
+                                <Route path="/room/:roomURI"><Room /></Route>
+                                <Route path="/signup"><SignUp /></Route>
+                                { (user.userName != "")?<Redirect to="/" />:<Route path="/login"><Login onLogin={handleLogin} /></Route> }
+                                <Route path="*"><NoMatch /></Route>
+                            </Switch>
                         </Container>
-                    </Router>
-                </IntlProvider>
-            </CookiesProvider>
+                    </Container>
+                </Router>
+            </IntlProvider>
         </ThemeProvider>
     );
 }

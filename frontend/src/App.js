@@ -69,7 +69,7 @@ function App(){
             <GlobalStyles />
             <IntlProvider messages={translations} locale={language} defaultLocale="en">
                 <Router>
-                    <Container fluid style={{ height: "100vh" }}>
+                    <div style={{ height: "100vh" }}>
                         <Header
                             onLogout={ handleLogout }
                             onChangeLang={ handleChangeLang }
@@ -86,7 +86,7 @@ function App(){
                                 <Route path="*"><NoMatch /></Route>
                             </Switch>
                         </Container>
-                    </Container>
+                    </div>
                 </Router>
             </IntlProvider>
         </ThemeProvider>

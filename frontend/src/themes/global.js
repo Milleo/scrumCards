@@ -24,14 +24,17 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   .navbar-brand a span{
-    color: #0d6efd;
+    color: #FFFFFF;
     font-size: 32px;
     font-weight: bold;
     line-height: 30px;
   }
   .navbar-brand a{
-    color: #363537;
+    color: #FFFFFF;
     line-height: 48px;
     text-decoration: none;
+  }
+  .header-brand {
+    background: #0d6efd;
   }
 `;

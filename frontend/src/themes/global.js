@@ -34,7 +34,11 @@ export const GlobalStyles = createGlobalStyle`
     line-height: 48px;
     text-decoration: none;
   }
-  .header-brand {
+  .header-brand, footer {
     background: #0d6efd;
+    color: #FFFFFF;
+    font-size: 13px;
+    line-height: 50px;
+    text-align:center;
   }
 `;

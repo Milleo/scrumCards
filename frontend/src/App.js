@@ -69,7 +69,7 @@ function App(){
             <GlobalStyles />
             <IntlProvider messages={translations} locale={language} defaultLocale="en">
                 <Router>
-                    <div style={{ height: "100vh" }}>
+                    <div className="d-flex flex-column align-items-end" style={{ height: "100vh" }}>
                         <Header
                             onLogout={ handleLogout }
                             onChangeLang={ handleChangeLang }
@@ -86,6 +86,9 @@ function App(){
                                 <Route path="*"><NoMatch /></Route>
                             </Switch>
                         </Container>
+                        <footer className="mt-auto col-12">
+                            Scrum Poker<sup>&reg;</sup> - Todos os direitos reservados 2023
+                        </footer>
                     </div>
                 </Router>
             </IntlProvider>

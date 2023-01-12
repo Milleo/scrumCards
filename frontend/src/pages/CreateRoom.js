@@ -63,15 +63,13 @@ class CreateRoom extends Component{
 
     submitForm = (values) => {
         this.setState({"loading": true});
-        const { cookies, history } = this.props;
+        const { history } = this.props;
         const { name, maxValue, includeCoffeeCard, includeUnknownCard } = values;
-        const userName = cookies.get('user_guest_name');
         const roomCreationPayload =  {
             name,
             maxValue: this.fibonacci[maxValue],
             includeUnknownCard,
-            includeCoffeeCard,
-            owner: userName
+            includeCoffeeCard
         };
         
         axios.post("/api/rooms/", roomCreationPayload).then((res) => {
@@ -100,7 +98,7 @@ class CreateRoom extends Component{
                                 <Form.Control type="text" name="userName" />
                             </Form.Group> }
                             <Form.Group className="mb-3">
-                                <Form.Label><FormattedMessage id='createRoom.name' /></Form.Label>
+                                <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
                                 <Form.Control onChange={ handleChange } value={ values.name } type="text" name="name" />
                             </Form.Group>
                             <Form.Group className="mb-3">

@@ -27,7 +27,7 @@ class CreateRoom extends Component{
                     .max(100, t({ id: "validations.maxChar" }, { qty: 100 }))
                     .required(t({ id: "validations.required" })),
             }),
-            roomName: Yup.string()
+            name: Yup.string()
                 .required(t({ id: "validations.required" }))
                 .max(50, t({ id: "validations.maxChar" }, { qty: 75 })),
             maxValue: Yup.number().integer()
@@ -40,7 +40,7 @@ class CreateRoom extends Component{
 
         this.initialValues = {
             name: "",
-            roomName: "",
+            name: "",
             maxValue: 6,
             includeUnknownCard: false,
             includeCoffeeCard: false
@@ -61,16 +61,22 @@ class CreateRoom extends Component{
         })
     }
 
-    handleSubmit = (e) => {
-        e.preventDefault();
-        const { cookies, history } = this.props;
-        const { roomName, maxValue, includeCoffeeCard, includeUnknownCard } = this.state;
-
+    submitForm = (values) => {
         this.setState({"loading": true});
+        const { cookies, history } = this.props;
+        const { name, maxValue, includeCoffeeCard, includeUnknownCard } = values;
         const userName = cookies.get('user_guest_name');
-        axios.post("/api/rooms/", { roomName, maxValue, includeUnknownCard, includeCoffeeCard, owner: userName }).then((res) => {
-            const roomUri = res.data;
-            history.push(`/room/${roomUri}`)
+        const roomCreationPayload =  {
+            name,
+            maxValue: this.fibonacci[maxValue],
+            includeUnknownCard,
+            includeCoffeeCard,
+            owner: userName
+        };
+        
+        axios.post("/api/rooms/", roomCreationPayload).then((res) => {
+            const { uri } = res.data;
+            history.push(`/room/${uri}`);
         }).catch(() => {
             history.push(`/error`)
         }).finally(() => {
@@ -81,12 +87,11 @@ class CreateRoom extends Component{
     render(){
         const { cookies, intl } = this.props;
         const { loading } = this.state;
-        console.log(this.props.cookies);
         
         if(loading)
             return <Loading />
 
-        return <Formik validateOnChange={false} initialValues={this.initialValues}>
+        return <Formik validateOnChange={false} initialValues={this.initialValues} onSubmit={this.submitForm}>
                 {({ errors, handleBlur, handleSubmit, touched, values, handleChange }) => (
                     <Form onSubmit={ handleSubmit }>
                         <fieldset>
@@ -95,8 +100,8 @@ class CreateRoom extends Component{
                                 <Form.Control type="text" name="userName" />
                             </Form.Group> }
                             <Form.Group className="mb-3">
-                                <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
-                                <Form.Control type="text" name="roomName" />
+                                <Form.Label><FormattedMessage id='createRoom.name' /></Form.Label>
+                                <Form.Control onChange={ handleChange } value={ values.name } type="text" name="name" />
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonacci[values.maxValue] }</Form.Label>

@@ -10,6 +10,7 @@ const translations = {
     "signup.userName": "Nome de usuário",
     "signup.password": "Senha",
     "signup.passwordConfirmation": "Confirmação de senha",
+    "createRoom.userName": "Seu nome",
     "createRoom.roomName": "Nome da sala",
     "createRoom.maxValue": "Valor máximo",
     "createRoom.createNewRoom": "Criar sala",

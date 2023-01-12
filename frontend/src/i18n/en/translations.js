@@ -10,6 +10,7 @@ const translations = {
     "signup.userName": "Username",
     "signup.password": "Password",
     "signup.passwordConfirmation": "Password confirmation",
+    "createRoom.userName": "Your name",
     "createRoom.roomName": "Room name",
     "createRoom.maxValue": "Maximum value",
     "createRoom.createNewRoom": "Create room",

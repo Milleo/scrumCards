@@ -7,23 +7,49 @@ import faker from "faker";
 import { withCookies } from 'react-cookie';
 import { FormattedMessage, injectIntl } from "react-intl";
 import { withRouter } from "react-router-dom";
-
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 class CreateRoom extends Component{
     constructor(props){
         super(props);
 
+        const { cookies } = props;
+        const t = props.intl.formatMessage;
         this.fibonacci = [1,2,3,5,8,13,21,34,55,89];
+        this.validationSchema = Yup.object().shape({
+            name: Yup.string()
+            .when("userNotLoggedIn", {
+                is: cookies.userName == "",
+                then: Yup
+                    .string()
+                    .min(3, t({ id: "validations.minChar" }, { qty: 3 }))
+                    .max(100, t({ id: "validations.maxChar" }, { qty: 100 }))
+                    .required(t({ id: "validations.required" })),
+            }),
+            roomName: Yup.string()
+                .required(t({ id: "validations.required" }))
+                .max(50, t({ id: "validations.maxChar" }, { qty: 75 })),
+            maxValue: Yup.number().integer()
+                .min(2)
+                .max(89)
+                .required(t({ id: "validations.required" })),
+            includeUnknownCard: Yup.bool(),
+            includeCoffeeCard: Yup.bool(),
+        });
 
-        this.state = {
-            includeUnknownCard: false,
-            includeCoffeeCard: false,
-            loading: true,
-            maxValue: (this.fibonacci.length - 1),
+        this.initialValues = {
+            name: "",
             roomName: "",
-        }
+            maxValue: 6,
+            includeUnknownCard: false,
+            includeCoffeeCard: false
+        };
+
+        this.state = { loading: false };
     }
 
+    
     createGuestUser = () => {
         const { cookies } = this.props;
         const userNameSufix = faker.random.alphaNumeric(8);
@@ -35,30 +61,6 @@ class CreateRoom extends Component{
         })
     }
 
-    componentDidMount(){
-        const { cookies } = this.props;
-        const scrumCardsCookie = cookies.get("user_guest_name") || null;
-        if(scrumCardsCookie != null){
-            this.createGuestUser();
-        }else{
-            const userName = scrumCardsCookie;
-            axios.get("/api/users/", { name: userName }).then((data) => {
-                if(data == undefined){
-                    cookies.remove("user_guest_name", null);
-                    this.createGuestUser();
-                }
-            }).catch(() => {
-                cookies.remove("user_guest_name", null);
-            }).finally(() => {
-                this.setState({"loading": false});
-            })
-        }
-    }
-
-    handleChangeMaxValue = (e) => this.setState({ "maxValue": e.target.value});
-    handleRoomName = (e) => this.setState({ "roomName": e.target.value});
-    handleChangeUnknownCard = (e) => this.setState({ "includeUnknownCard": e.target.checked});
-    handleChangeCoffeeCard = (e) => this.setState({ "includeCoffeeCard": e.target.checked});
     handleSubmit = (e) => {
         e.preventDefault();
         const { cookies, history } = this.props;
@@ -77,23 +79,38 @@ class CreateRoom extends Component{
     }
 
     render(){
-        const { intl } = this.props;
-        const { loading, maxValue } = this.state;
+        const { cookies, intl } = this.props;
+        const { loading } = this.state;
+        console.log(this.props.cookies);
         
         if(loading)
             return <Loading />
 
-        return <Form onSubmit={ this.handleSubmit }>
-            <Form.Group>
-                <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
-                <Form.Control type="text" name="roomName" onChange={ this.handleRoomName } />
-                <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonacci[maxValue] }</Form.Label>
-                <Form.Range onChange={ this.handleChangeMaxValue } min="1" max={ this.fibonacci.length - 1 } step="1" value={maxValue} />
-                <Form.Check onChange={ this.handleChangeUnknownCard } name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
-                <Form.Check onChange={ this.handleChangeCoffeeCard } name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
-            </Form.Group>
-            <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
-        </Form>;
+        return <Formik validateOnChange={false} initialValues={this.initialValues}>
+                {({ errors, handleBlur, handleSubmit, touched, values, handleChange }) => (
+                    <Form onSubmit={ handleSubmit }>
+                        <fieldset>
+                            { cookies.userName == "" && <Form.Group className="mb-3">
+                                <Form.Label><FormattedMessage id='createRoom.userName' /></Form.Label>
+                                <Form.Control type="text" name="userName" />
+                            </Form.Group> }
+                            <Form.Group className="mb-3">
+                                <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
+                                <Form.Control type="text" name="roomName" />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonacci[values.maxValue] }</Form.Label>
+                                <Form.Range onChange={ handleChange } name="maxValue" min="2" max={ this.fibonacci.length - 1 } step="1" value={values.maxValue} />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Check name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
+                                <Form.Check name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
+                            </Form.Group>
+                            <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
+                        </fieldset>
+                    </Form>
+                )}                
+        </Formik>;
     }
 }
 

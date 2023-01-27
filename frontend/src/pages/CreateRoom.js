@@ -12,7 +12,7 @@ class CreateRoom extends Component{
     constructor(props){
         super(props);
 
-        const { cookies } = props;
+        const { cookies } = props.cookies;
         const t = props.intl.formatMessage;
         this.fibonacci = [1,2,3,5,8,13,21,34,55,89];
         this.validationSchema = Yup.object().shape({
@@ -49,7 +49,7 @@ class CreateRoom extends Component{
 
     
     createGuestUser = () => {
-        const { cookies } = this.props;
+        const { cookies } = this.props.cookies;
         const userNameSufix = faker.random.alphaNumeric(8);
         const userName = `guest_${userNameSufix}`;
         return axios.post("/api/users/guest/", { userName: userName }).then((err, res) => {
@@ -61,7 +61,7 @@ class CreateRoom extends Component{
 
     submitForm = async (values) => {
         this.setState({"loading": true});
-        const { cookies } = this.props;
+        const { cookies } = this.props.cookies;
 
         if(cookies.userName == "" || !("userName" in cookies)){
             await this.createGuestUser(values);
@@ -87,7 +87,8 @@ class CreateRoom extends Component{
     }
 
     render(){
-        const { cookies, intl } = this.props;
+        const { intl } = this.props;
+        const { cookies } = this.props.cookies;
         const { loading } = this.state;
         
         if(loading)

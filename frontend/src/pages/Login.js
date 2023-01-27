@@ -1,4 +1,4 @@
-import { Alert, Button, Form, Row } from 'react-bootstrap';
+import { Alert, Button, Form, Col } from 'react-bootstrap';
 import { useIntl, FormattedMessage } from "react-intl";
 import { Formik } from 'formik';
 import { useState } from 'react';
@@ -56,7 +56,7 @@ const Login = (props) => {
         })
     }
 
-    return <Row className="align-self-center" style={{ marginTop: "50px" }}>
+    return <Col className="align-self-center">
         <Formik validateOnChange={false} validationSchema={validationSchema} onSubmit={loginSubmit} initialValues={initialValues}>
             {({ errors, handleBlur, handleSubmit, touched, values, handleChange }) => (
                 <Form noValidate onSubmit={handleSubmit}>
@@ -73,7 +73,7 @@ const Login = (props) => {
                 </Form>
             )}
         </Formik>
-    </Row>
+    </Col>
 }
 
 export default Login;

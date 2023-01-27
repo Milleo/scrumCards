@@ -1,4 +1,4 @@
-import { Button, Form, Row } from 'react-bootstrap';
+import { Button, Form, Col } from 'react-bootstrap';
 import { useIntl, FormattedMessage } from "react-intl";
 import axios from "axios";
 import { useState } from 'react';
@@ -81,7 +81,7 @@ const SignUp = () => {
     }
 
     return(
-        <Row className="align-self-center" style={{ marginTop: "50px" }}>
+        <Col className="align-self-center">
             <Formik validateOnChange={false} validationSchema={validationSchema} onSubmit={signUpSubmit} initialValues={initialValues}>
                 {({ errors, handleBlur, handleSubmit, touched, values, handleChange }) => (
                     <Form noValidate onSubmit={handleSubmit}>
@@ -99,7 +99,7 @@ const SignUp = () => {
                     </Form>
                 )}
             </Formik>
-        </Row>
+        </Col>
     )
 }
 

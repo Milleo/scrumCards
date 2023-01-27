@@ -2,6 +2,13 @@ const db = require("../database/models");
 const status = require("http-status");
 
 const RoundController = {
+    list: async (req, res) => {
+        const { uri } = req.params;
+        db.Room.findOne({ where: { uri: uri }}).then(async (roomObj) => {
+            const rounds = await db.Round.findAll({ where: { room_id: roomObj.id}, order: [["order", "DESC"]]})
+            res.status(status.OK).send(rounds);
+        });
+    },
     startRound: async (req, res) => {
         const { uri } = req.params;
         let { title, relatedLink } = req.body;

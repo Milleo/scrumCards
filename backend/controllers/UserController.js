@@ -58,7 +58,6 @@ const UserController = {
                     return;
                 }
                 
-                res.set("x-access-token", token);
                 res.cookie("jwt_token", token, {
                     expires: new Date(Date.now() + 16 * 3600000),
                     httpOnly: true,

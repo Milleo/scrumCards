@@ -23,11 +23,9 @@ describe("Rooms endpoints", () => {
     it("Create a room", async () => {
         const response = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
         expect(response.statusCode).toBe(status.OK);
-        ownerJWT = response.header["x-access-token"];
 
         const responseRoomCreation = await request(app)
             .post("/rooms")
-            .set("Authorization", ownerJWT)
             .send(roomPayload);
         roomUUID = responseRoomCreation.body.uuid;
         roomURI = responseRoomCreation.body.uri;

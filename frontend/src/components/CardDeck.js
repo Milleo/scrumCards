@@ -8,7 +8,7 @@ const CardDeck = () => {
         setSelectedCard(cardValue);
     }
 
-    return <div className="d-flex align-self-end mb-3" style={{ "flex-wrap": "wrap" }}>
+    return <div className="d-flex align-self-end mb-3" style={{ "flexWrap": "wrap" }}>
         { fibonacci.map((value) => <Card
         onClick={selectCard}
         key={`card_value_${value}`}

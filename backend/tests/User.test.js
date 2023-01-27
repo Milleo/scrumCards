@@ -23,14 +23,14 @@ describe("User endpoints", () => {
         const response = await request(app).post("/users/signup").send(testPayload);
         expect(response.statusCode).toBe(status.OK);
 
-        const userJWT = response.header["x-access-token"];
-        expect(userJWT).not.toBeUndefined();
+        const userJWT = response.header["set-cookie"];
+        expect(userJWT).toBeUndefined();
     });
     it("Create new guest user", async () => {
         const response = await request(app).post("/users/guest").send({ userName: "Guest_user_123"});
         expect(response.statusCode).toBe(status.OK);
 
-        const userJWT = response.header["x-access-token"];
+        const userJWT = response.header["set-cookie"];
         expect(userJWT).not.toBeUndefined();
     });
     it("Try to create user with same e-mail", async () => {

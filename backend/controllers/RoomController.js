@@ -33,9 +33,10 @@ const RoomController = {
                     .then(() => res.sendStatus(status.OK))
                     .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
                 }else{
-                    if(joinData.banned){
-                        res.sendStatus(status.UNAUTHORIZED);
-                    }
+                    if(joinData.banned)
+                        return res.sendStatus(status.UNAUTHORIZED);
+
+                    return res.status(200).send(joinData);
                 }
                 
             }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err))

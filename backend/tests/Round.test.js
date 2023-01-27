@@ -19,12 +19,12 @@ describe("Round endpoints", () => {
     beforeAll(async () => {
         await db.sequelize.sync({ force: true });
         const responseOwner = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
-        ownerJWT = responseOwner.header["x-access-token"];
+        ownerJWT = responseOwner.header["set-cookie"];
         const responsePlayer = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
-        playerJWT = responsePlayer.header["x-access-token"];
+        playerJWT = responsePlayer.header["set-cookie"];
         const responseRoomCreation = await request(app)
             .post("/rooms")
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send(roomPayload);
         roomURI = responseRoomCreation.body.uri;
     });
@@ -35,7 +35,7 @@ describe("Round endpoints", () => {
         }
         const newRoundResp = await request(app)
             .post(`/rooms/${roomURI}/round/start/`)
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send(roundInfo);
         expect(newRoundResp.statusCode).toBe(status.OK);
         expect(newRoundResp.body).toHaveProperty("uuid");
@@ -48,7 +48,7 @@ describe("Round endpoints", () => {
         }
         const newRoundResp = await request(app)
             .post(`/rooms/INVALID_URI/round/start/`)
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send(roundInfo);
         expect(newRoundResp.statusCode).toBe(status.NOT_FOUND);
     });
@@ -57,7 +57,7 @@ describe("Round endpoints", () => {
         const roundInfo = { title: "New round" }
         const newRoundResp = await request(app)
             .post(`/rooms/${roomURI}/round/start/`)
-            .set("Authorization", playerJWT)
+            .set("Cookie", playerJWT)
             .send(roundInfo);
         expect(newRoundResp.statusCode).toBe(status.UNAUTHORIZED);
     });
@@ -66,7 +66,7 @@ describe("Round endpoints", () => {
         const roundInfo = { title: "Other title" };
         const roundUpdate = await request(app)
             .put(`/rooms/${roomURI}/round/${roundUUID}`)
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send(roundInfo);
         expect(roundUpdate.statusCode).toBe(status.OK);
 
@@ -78,7 +78,7 @@ describe("Round endpoints", () => {
         const roundInfo = { title: "Other title" };
         const roundUpdate = await request(app)
             .put(`/rooms/${roomURI}/round/${roundUUID}`)
-            .set("Authorization", playerJWT)
+            .set("Cookie", playerJWT)
             .send(roundInfo);
         expect(roundUpdate.statusCode).toBe(status.UNAUTHORIZED);
     });
@@ -89,7 +89,7 @@ describe("Round endpoints", () => {
 
         const response = await request(app)
             .get(`/rooms/${roomURI}/round/${roundUUID}/end`)
-            .set("Authorization", ownerJWT);
+            .set("Cookie", ownerJWT);
         expect(response.statusCode).toBe(status.OK);
 
         const checkRoundAfter = await db.Round.findOne({ where: { uuid: roundUUID }});
@@ -99,7 +99,7 @@ describe("Round endpoints", () => {
     it("Create multiple rounds and keep the correct value of order", async () => {
         const responseRoomCreation = await request(app)
             .post("/rooms")
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send(roomPayload);
         const newRoomURI = responseRoomCreation.body.uri;
 
@@ -107,7 +107,7 @@ describe("Round endpoints", () => {
         for(let i = 0; i < TEST_CASES; i++){
             await request(app)
                 .post(`/rooms/${newRoomURI}/round/start/`)
-                .set("Authorization", ownerJWT)
+                .set("Cookie", ownerJWT)
                 .send({});
         }
 
@@ -116,11 +116,11 @@ describe("Round endpoints", () => {
         let checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
         expect(checkOrder.order).toBe(TEST_CASES);
 
-        await request(app).delete(`/rooms/${newRoomURI}/round/${checkOrder.uuid}`).set("Authorization", ownerJWT);
+        await request(app).delete(`/rooms/${newRoomURI}/round/${checkOrder.uuid}`).set("Cookie", ownerJWT);
         checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
         expect(checkOrder.order).toBe(TEST_CASES - 1);
 
-        await request(app).post(`/rooms/${newRoomURI}/round/start/`).set("Authorization", ownerJWT).send({});
+        await request(app).post(`/rooms/${newRoomURI}/round/start/`).set("Cookie", ownerJWT).send({});
         checkOrder = await db.Round.findOne({ where: { room_id: getRoom.id }, order: [["order", "DESC"]]});
         expect(checkOrder.order).toBe(TEST_CASES);
     })
@@ -128,7 +128,7 @@ describe("Round endpoints", () => {
     it("Delete round", async () => {
         const roundUpdate = await request(app)
             .delete(`/rooms/${roomURI}/round/${roundUUID}`)
-            .set("Authorization", ownerJWT);
+            .set("Cookie", ownerJWT);
         expect(roundUpdate.statusCode).toBe(status.OK);
 
         const checkRound = await db.Round.findOne({ where: { uuid: roundUUID }});
@@ -138,7 +138,7 @@ describe("Round endpoints", () => {
     it("Not owner tries to delete round", async () => {
         const roundUpdate = await request(app)
             .delete(`/rooms/${roomURI}/round/${roundUUID}`)
-            .set("Authorization", playerJWT);
+            .set("Cookie", playerJWT);
         expect(roundUpdate.statusCode).toBe(status.UNAUTHORIZED);
     });
 

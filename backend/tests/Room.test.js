@@ -24,8 +24,10 @@ describe("Rooms endpoints", () => {
         const response = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
         expect(response.statusCode).toBe(status.OK);
 
+        ownerJWT = response.headers['set-cookie'];
         const responseRoomCreation = await request(app)
             .post("/rooms")
+            .set('Cookie', response.headers['set-cookie'])
             .send(roomPayload);
         roomUUID = responseRoomCreation.body.uuid;
         roomURI = responseRoomCreation.body.uri;
@@ -40,7 +42,7 @@ describe("Rooms endpoints", () => {
         }
         const responseRoomUpdate = await request(app)
             .put(`/rooms/${roomUUID}`)
-            .set("Authorization", ownerJWT)
+            .set('Cookie', ownerJWT)
             .send(updatePayload);
         expect(responseRoomUpdate.statusCode).toBe(status.OK);
 
@@ -55,11 +57,11 @@ describe("Rooms endpoints", () => {
         
         for(let i = 1; i <= PLAYERS_QTY; i++){
             const responseCreateGuest = await request(app).post("/users/guest").send({ userName: "player_" + i });
-            const playerJWT = responseCreateGuest.header["x-access-token"];
+            const playerJWT = responseCreateGuest.header["set-cookie"];
             const playerUUID = responseCreateGuest.body.uuid;
             playersInfo.push({ jwt: playerJWT, uuid: playerUUID });
 
-            const responseJoin = await request(app).get(`/rooms/${roomURI}`).set("Authorization", playerJWT).send({ role: "player" });
+            const responseJoin = await request(app).get(`/rooms/${roomURI}`).set('Cookie', playerJWT).send({ role: "player" });
 
             expect(responseJoin.statusCode).toBe(status.OK);
         }
@@ -67,17 +69,17 @@ describe("Rooms endpoints", () => {
     it("Ban user from room", async () => {
         const playerUUID = playersInfo[0].uuid;
 
-        const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", ownerJWT);
+        const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set('Cookie', ownerJWT);
         expect(responseBan.statusCode).toBe(status.OK);
     });
     it("Banned user tries to join room", async () => {
         // Owner bans the player
         const playerJWT = playersInfo[1].jwt;
         const playerUUID = playersInfo[1].uuid;
-        await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", ownerJWT);
+        await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Cookie", ownerJWT);
 
         // Player tries to return
-        const respBanned = await request(app).get(`/rooms/${roomURI}`).send({ role: "player" }).set("Authorization", playerJWT);
+        const respBanned = await request(app).get(`/rooms/${roomURI}`).send({ role: "player" }).set("Cookie", playerJWT);
         expect(respBanned.statusCode).toBe(status.UNAUTHORIZED);
     });
     it("Not owner tries to update room", async () => {
@@ -89,14 +91,14 @@ describe("Rooms endpoints", () => {
             includeCoffeeCard: true,
             includeUnknownCard: true,
         }
-        const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).set("Authorization", playerJWT).send(updatePayload);
+        const responseRoomUpdate = await request(app).put(`/rooms/${roomUUID}`).set("Cookie", playerJWT).send(updatePayload);
         expect(responseRoomUpdate.statusCode).toBe(status.UNAUTHORIZED);
     });
     it("Not owner tries to ban user from room", async () => {
         const playerJWT = playersInfo[3].jwt;
         const playerUUID = playersInfo[4].uuid;
 
-        const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Authorization", playerJWT);
+        const responseBan = await request(app).get(`/rooms/${roomURI}/ban/${playerUUID}`).set("Cookie", playerJWT);
         expect(responseBan.statusCode).toBe(status.UNAUTHORIZED);
     });
     afterAll(async () => {

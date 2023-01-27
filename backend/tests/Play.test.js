@@ -20,31 +20,31 @@ describe("Play endpoints", () => {
         // Create owner and player
         await db.sequelize.sync({ force: true });
         const responseOwner = await request(app).post("/users/guest").send({ userName: "roomOwner123" });
-        ownerJWT = responseOwner.header["x-access-token"];
+        ownerJWT = responseOwner.header["set-cookie"];
         const responsePlayer = await request(app).post("/users/guest").send({ userName: "Player_1" });
-        playerJWT = responsePlayer.header["x-access-token"];
+        playerJWT = responsePlayer.header["set-cookie"];
 
         // Create a new room
         const responseRoomCreation = await request(app)
             .post("/rooms")
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send(roomPayload);
         roomURI = responseRoomCreation.body.uri;
 
         // Player join the room
-        await request(app).get(`/rooms/${roomURI}`).set("Authorization", playerJWT).send({ role: "player" });
+        await request(app).get(`/rooms/${roomURI}`).set("Cookie", playerJWT).send({ role: "player" });
 
         // Create a round
         const roundInfo = { title: "New round" }
         const newRoundResp = await request(app)
             .post(`/rooms/${roomURI}/round/start/`)
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send(roundInfo);
         roundUUID = newRoundResp.body.uuid;
     });
     it("Create a play", async () => {
         const playPayload = { cardValue: 8 };
-        const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Authorization", playerJWT).send(playPayload);
+        const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Cookie", playerJWT).send(playPayload);
         expect(response.statusCode).toBe(status.OK);
 
         const getPlay = await db.Play.findOne({ where: { uuid: response.body.uuid }});
@@ -52,14 +52,14 @@ describe("Play endpoints", () => {
     });
     it("User not in the room tries to create a play", async () => {
         const responsePlayerNotInRoom = await request(app).post("/users/guest").send({ userName: "Player_2" });
-        const playerNotInRoomJWT = responsePlayerNotInRoom.header["x-access-token"];
+        const playerNotInRoomJWT = responsePlayerNotInRoom.header["set-cookie"];
         const playPayload = { cardValue: 5 };
-        const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Authorization", playerNotInRoomJWT).send(playPayload);
+        const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Cookie", playerNotInRoomJWT).send(playPayload);
         expect(response.statusCode).toBe(status.NOT_FOUND);
     })
     it("Create a play with a invalid card value", async () => {
         const playPayload = { cardValue: 30 };
-        const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Authorization", playerJWT).send(playPayload);
+        const response = await request(app).post(`/rooms/${roomURI}/round/${roundUUID}/play`).set("Cookie", playerJWT).send(playPayload);
         expect(response.statusCode).toBe(status.BAD_REQUEST);
     });
     it("Get all play values after round end", async () => {
@@ -79,28 +79,28 @@ describe("Play endpoints", () => {
 
         const testRoundResp = await request(app)
             .post(`/rooms/${roomURI}/round/start/`)
-            .set("Authorization", ownerJWT)
+            .set("Cookie", ownerJWT)
             .send({ title: "New round 2" });
         const testRoundUUID = testRoundResp.body.uuid;
         
         for(let i = 0; i < PLAYERS_QTY; i++){
             const responseCreateGuest = await request(app).post("/users/guest").send({ userName: playersInfo[i].user.userName });
-            const playerJWT = responseCreateGuest.header["x-access-token"];
+            const playerJWT = responseCreateGuest.header["set-cookie"];
             playersJWTs.push(playerJWT);
 
-            await request(app).get(`/rooms/${roomURI}`).set("Authorization", playerJWT).send({ role: "player" });
+            await request(app).get(`/rooms/${roomURI}`).set("Cookie", playerJWT).send({ role: "player" });
         }
 
         await playersInfo.forEach(async (player, index) => {
             await request(app)
                 .post(`/rooms/${roomURI}/round/${testRoundUUID}/play`)
-                .set("Authorization", playersJWTs[index])
+                .set("Cookie", playersJWTs[index])
                 .send({ cardValue: player.cardValue });
         });
 
         const playSummary = await request(app)
             .get(`/rooms/${roomURI}/round/${testRoundUUID}/end`)
-            .set("Authorization", ownerJWT);
+            .set("Cookie", ownerJWT);
 
         
         expect(playSummary.body).toEqual(expect.arrayContaining(playersInfo));

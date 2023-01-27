@@ -88,8 +88,6 @@ const UserController = {
                     res.status(status.INTERNAL_SERVER_ERROR).send("Error generating JSON Web Token");
                     return;
                 }
-                
-                res.set("x-access-token", token);
                 res.sendStatus(status.OK);
             });
         }).catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
@@ -107,7 +105,12 @@ const UserController = {
                     return;
                 }
                 
-                res.set("x-access-token", token);
+                res.cookie("jwt_token", token, {
+                    expires: new Date(Date.now() + 16 * 3600000),
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict'
+                })
                 res.status(status.OK).send({ uuid: data.uuid });
             })
         }).catch((err) => {

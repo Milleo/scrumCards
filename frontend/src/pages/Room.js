@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { Card } from "../components";
+import { CardDeck } from "../components";
 import { useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import io from 'socket.io-client';
@@ -13,12 +13,14 @@ function Room(props){
     const [ userCount, setUserCount ] = useState(0);
 
     useEffect(() => {
-        axios.get(`/api/rooms/${roomURI}`).then((res) => {
-            setLoading(false);
-            setRoomData(res.data);
-        }).catch(() => {
-            history.push("/404");
-        });
+        if(roomURI != undefined){
+            axios.get(`/api/rooms/${roomURI}`).then((res) => {
+                setLoading(false);
+                setRoomData(res.data);
+            }).catch(() => {
+                history.push("/404");
+            });
+        }
 
         socket.on("welcome", (data) => {
             console.log(data);
@@ -34,8 +36,7 @@ function Room(props){
     
 
     return <Fragment><h1>{roomData.name}</h1>
-        {userCount}
-        <Card />
+        <CardDeck />
     </Fragment>
 }
 

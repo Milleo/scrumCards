@@ -1,44 +1,47 @@
 .card {
-background-color: transparent;
-width: 60px;
-height: 75px;
-border: none;
-perspective: 1000px; /* Remove this if you don't want the 3D effect */
+    background-color: transparent;
+    border: none;
+    height: 75px;
+    margin-bottom: 5px;
+    padding: 0 5px;
+    perspective: 1000px;
+    width: 60px;
 }
-
-
 .card-inner {
-position: relative;
-width: 100%;
-height: 100%;
-text-align: center;
-transition: transform 0.8s;
-transform-style: preserve-3d;
+    height: 100%;
+    position: relative;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    width: 100%;
 }
-
-.card:hover .card-inner {
-transform: rotateY(180deg);
+.card.hidden .card-inner {
+    transform: rotateY(180deg);
 }
-
 .card-front, .card-back {
-position: absolute;
-width: 100%;
-height: 100%;
--webkit-backface-visibility: hidden; /* Safari */
-backface-visibility: hidden;
+    backface-visibility: hidden;
+    background-color: #FFFFFF;
+    border-radius: 3px;
+    border: 3px solid #000;
+    color: #000000;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    -webkit-backface-visibility: hidden;
 }
-
 .card-front {
-    background-color: dodgerblue;
-
-color: black;
-
+    border: none;
+    background-color: #BBBBBB;
+    transform: rotateY(180deg);
 }
-
 .card-back {
-    background-color: #bbb;
-color: white;
-transform: rotateY(180deg);
-line-height: 74px;
-font-size: 20px;
+    border-color: dodgerblue;
+    font-size: 20px;
+    line-height: 74px;
+}
+.card.selected .card-back{
+    background-color: dodgerblue;
+    color: #FFFFFF;
+    transition: transform 0.3s;
+    transform: translateY(-20px);
 }

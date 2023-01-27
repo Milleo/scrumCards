@@ -76,10 +76,11 @@ function App(){
                             selectedLanguage={ language }
                             toggleTheme={ toggleTheme }
                             user={ user } />
-                        <Container>
+                        <Container fluid className="flex-fill d-flex">
                             <Switch>
                                 <Route exact path="/"><Main /></Route>
                                 <Route path="/newRoom"><CreateRoom /></Route>
+                                <Route path="/room/test"><Room /></Route>
                                 <Route path="/room/:roomURI"><Room /></Route>
                                 <Route path="/signup"><SignUp /></Route>
                                 { (user.userName != "")?<Redirect to="/" />:<Route path="/login"><Login onLogin={handleLogin} /></Route> }

@@ -56,21 +56,21 @@ describe("User endpoints", () => {
         const response = await request(app).post("/users/login").send({ email: testPayload.email, password: testPayload.password });
         expect(response.statusCode).toBe(status.OK);
 
-        const userJWT = response.header["x-access-token"];
+        const userJWT = response.headers["set-cookie"];
         expect(userJWT).not.toBeUndefined();
     });
     it("Login user with user name", async () => {
         const response = await request(app).post("/users/login").send({ userName: testPayload.userName, password: testPayload.password });
         expect(response.statusCode).toBe(status.OK);
 
-        const userJWT = response.header["x-access-token"];
+        const userJWT = response.headers["set-cookie"];
         expect(userJWT).not.toBeUndefined();
     });
     it("Login user with invalid request", async () => {
         const response = await request(app).post("/users/login").send({ });
         expect(response.statusCode).toBe(status.BAD_REQUEST);
 
-        const userJWT = response.header["x-access-token"];
+        const userJWT = response.headers["set-cookie"];
         expect(userJWT).toBeUndefined();
     });
     it("Delete new User", async () => {

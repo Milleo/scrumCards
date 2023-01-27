@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Col, Form, Spinner } from "react-bootstrap";
+import { Button, Col, Form, InputGroup, Spinner } from "react-bootstrap";
 import axios from "axios";
 import faker from "faker";
 import { withCookies } from 'react-cookie';
@@ -48,15 +48,17 @@ class CreateRoom extends Component{
     }
 
     
-    createGuestUser = () => {
+    createGuestUser = (values) => {
         const { cookies } = this.props.cookies;
-        const userNameSufix = faker.random.alphaNumeric(8);
+        const userNameSufix = values.userName;
         const userName = `guest_${userNameSufix}`;
-        return axios.post("/api/users/guest/", { userName: userName }).then((err, res) => {
-            cookies.set("user_guest_name", userName);
-        }).finally(() => {
-            this.setState({"loading": false});
-        })
+        return new Promise((resolve, reject) => {
+            axios.post("/api/users/guest/", { userName: userName }).then((err, res) => {
+                cookies.set("userName", userName);
+                resolve(null);
+            })
+            .catch((err) => resolve(err));
+        });
     }
 
     submitForm = async (values) => {
@@ -101,13 +103,16 @@ class CreateRoom extends Component{
                             <fieldset disabled={loading}>
                             { (cookies.userName == "" || !("userName" in cookies)) && <Form.Group className="mb-3">
                                 <Form.Label><FormattedMessage id='createRoom.userName' /></Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    isInvalid={!!errors["userName"] && !!touched["userName"]}
-                                    onChange={ handleChange }
-                                    value={ values.userName }
-                                    name="userName" />
-                                <Form.Control.Feedback type="invalid">{errors["userName"]}</Form.Control.Feedback>
+                                <InputGroup>
+                                    <InputGroup.Text>guest_</InputGroup.Text>
+                                    <Form.Control
+                                        type="text"
+                                        isInvalid={!!errors["userName"] && !!touched["userName"]}
+                                        onChange={ handleChange }
+                                        value={ values.userName }
+                                        name="userName" />
+                                    <Form.Control.Feedback type="invalid">{errors["userName"]}</Form.Control.Feedback>
+                                </InputGroup>
                             </Form.Group> }
                             <Form.Group className="mb-3">
                                 <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>

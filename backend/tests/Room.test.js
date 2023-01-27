@@ -52,6 +52,12 @@ describe("Rooms endpoints", () => {
         )
         
     });
+    it("Owner joins room and has the correct role", async () => {
+        const response = await request(app).get(`/rooms/${roomURI}`).set("Cookie", ownerJWT);
+        console.log(response.body);
+
+        expect(response.body.role).toBe("owner");
+    })
     it("Join multiple players", async () => {
         const PLAYERS_QTY = 12;
         

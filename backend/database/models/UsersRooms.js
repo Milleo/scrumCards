@@ -3,9 +3,8 @@ module.exports = (sequelize, DataTypes) => {
         id_user: { type: DataTypes.INTEGER.UNSIGNED, foreignKey: true },
         id_room: { type: DataTypes.INTEGER.UNSIGNED, foreignKey: true },
         banned: { type: DataTypes.TINYINT.UNSIGNED },
-        role: { type: DataTypes.ENUM('player', 'spectator') },
-        banned: DataTypes.BOOLEAN,
-        role: DataTypes.ENUM('player', 'spectator')
+        role: { type: DataTypes.ENUM('player', 'spectator', 'owner') },
+        banned: DataTypes.BOOLEAN
     }, {
         tableName: 'users_rooms',
         timestamps: true,

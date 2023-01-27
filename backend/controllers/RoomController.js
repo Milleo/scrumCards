@@ -10,7 +10,7 @@ const RoomController = {
     },
     join: (req, res) => {
         const { uri } = req.params;
-        const { role } = req.body;
+        let { role } = req.body;
         const user = req.userInfo;
         
         db.Room.findOne({ where: { uri: uri }}).then((roomObj) => {
@@ -21,6 +21,9 @@ const RoomController = {
                 if(userObj == null){
                     return res.status(status.NOT_FOUND).send("Room not found");
                 }
+                if(userObj.uuid == user.uuid){
+                    role = "owner";
+                }
 
                 const joinData = await db.UsersRooms.findOne({ where: { id_user: userObj.id, id_room: roomObj.id }});
                 if(joinData == null){
@@ -30,7 +33,7 @@ const RoomController = {
                         id_room: roomObj.id,
                         role: role
                     })
-                    .then(() => res.sendStatus(status.OK))
+                    .then(() => res.status(status.OK).send({ role: role }))
                     .catch((err) => res.status(status.INTERNAL_SERVER_ERROR).send(err));
                 }else{
                     if(joinData.banned)

@@ -9,7 +9,6 @@ module.exports = {
       userName: { type: Sequelize.DataTypes.STRING(50), allowNull: false, unique: true },
       email: { type: Sequelize.DataTypes.STRING(75), allowNull: true, unique: true },
       password: { type: Sequelize.DataTypes.STRING(100), allowNull: true },
-      role: { type: Sequelize.DataTypes.ENUM('player', 'spectator'), allowNull: false },
       createdAt: Sequelize.DataTypes.DATE,
       updatedAt: Sequelize.DataTypes.DATE,
       deletedAt: Sequelize.DataTypes.DATE

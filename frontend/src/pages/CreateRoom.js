@@ -37,7 +37,7 @@ class CreateRoom extends Component{
         });
 
         this.initialValues = {
-            userName: "",
+            userName: faker.internet.userName(),
             name: "",
             maxValue: 6,
             includeUnknownCard: false,

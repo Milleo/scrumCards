@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Col, Form, Loading } from "react-bootstrap";
+import { Button, Col, Form, Spinner } from "react-bootstrap";
 import axios from "axios";
 import faker from "faker";
 import { withCookies } from 'react-cookie';
@@ -16,9 +16,9 @@ class CreateRoom extends Component{
         const t = props.intl.formatMessage;
         this.fibonacci = [1,2,3,5,8,13,21,34,55,89];
         this.validationSchema = Yup.object().shape({
-            name: Yup.string()
+            userName: Yup.string()
             .when("userNotLoggedIn", {
-                is: cookies.userName == "",
+                is: (cookies.userName == "" || !("userName" in cookies)),
                 then: Yup
                     .string()
                     .min(3, t({ id: "validations.minChar" }, { qty: 3 }))
@@ -37,7 +37,7 @@ class CreateRoom extends Component{
         });
 
         this.initialValues = {
-            name: "",
+            userName: "",
             name: "",
             maxValue: 6,
             includeUnknownCard: false,
@@ -52,15 +52,21 @@ class CreateRoom extends Component{
         const { cookies } = this.props;
         const userNameSufix = faker.random.alphaNumeric(8);
         const userName = `guest_${userNameSufix}`;
-        axios.post("/api/users/", { userName: userName }).then((err, res) => {
+        return axios.post("/api/users/guest/", { userName: userName }).then((err, res) => {
             cookies.set("user_guest_name", userName);
         }).finally(() => {
             this.setState({"loading": false});
         })
     }
 
-    submitForm = (values) => {
+    submitForm = async (values) => {
         this.setState({"loading": true});
+        const { cookies } = this.props;
+
+        if(cookies.userName == "" || !("userName" in cookies)){
+            await this.createGuestUser(values);
+        }
+
         const { history } = this.props;
         const { name, maxValue, includeCoffeeCard, includeUnknownCard } = values;
         const roomCreationPayload =  {
@@ -77,7 +83,7 @@ class CreateRoom extends Component{
             history.push(`/error`)
         }).finally(() => {
             this.setState({"loading": false});
-        })
+        });
     }
 
     render(){
@@ -85,29 +91,45 @@ class CreateRoom extends Component{
         const { loading } = this.state;
         
         if(loading)
-            return <Loading />
+            return <Spinner />
 
-        return <Formik validateOnChange={false} initialValues={this.initialValues} onSubmit={this.submitForm}>
+        return <Formik validateOnChange={false} validationSchema={this.validationSchema} initialValues={this.initialValues} onSubmit={this.submitForm}>
                 {({ errors, handleBlur, handleSubmit, touched, values, handleChange }) => (
-                    <Form as={Col} onSubmit={ handleSubmit }>
-                        { (cookies.userName == "" || !("userName" in cookies)) && <Form.Group className="mb-3">
-                            <Form.Label><FormattedMessage id='createRoom.userName' /></Form.Label>
-                            <Form.Control type="text" name="userName" />
-                        </Form.Group> }
-                        <Form.Group className="mb-3">
-                            <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
-                            <Form.Control onChange={ handleChange } value={ values.name } type="text" name="name" />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonacci[values.maxValue] }</Form.Label>
-                            <Form.Range onChange={ handleChange } name="maxValue" min="2" max={ this.fibonacci.length - 1 } step="1" value={values.maxValue} />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Check name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
-                            <Form.Check name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
-                        </Form.Group>
-                        <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
-                    </Form>
+                    <Col>
+                        <Form onSubmit={ handleSubmit }>
+                            <fieldset disabled={loading}>
+                            { (cookies.userName == "" || !("userName" in cookies)) && <Form.Group className="mb-3">
+                                <Form.Label><FormattedMessage id='createRoom.userName' /></Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    isInvalid={!!errors["userName"] && !!touched["userName"]}
+                                    onChange={ handleChange }
+                                    value={ values.userName }
+                                    name="userName" />
+                                <Form.Control.Feedback type="invalid">{errors["userName"]}</Form.Control.Feedback>
+                            </Form.Group> }
+                            <Form.Group className="mb-3">
+                                <Form.Label><FormattedMessage id='createRoom.roomName' /></Form.Label>
+                                <Form.Control
+                                    onChange={ handleChange }
+                                    value={ values.name }
+                                    isInvalid={!!errors["name"] && !!touched["name"]}
+                                    type="text"
+                                    name="name" />
+                                <Form.Control.Feedback type="invalid">{errors["name"]}</Form.Control.Feedback>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label><FormattedMessage id='createRoom.maxValue' />: { this.fibonacci[values.maxValue] }</Form.Label>
+                                <Form.Range onChange={ handleChange } name="maxValue" min="2" max={ this.fibonacci.length - 1 } step="1" value={values.maxValue} />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Check name="includeUnknownCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeUnknownCard" })} />
+                                <Form.Check name="includeCoffeeCard"  type="switch" label={ intl.formatMessage({ id: "createRoom.includeCoffeeCard" })} />
+                            </Form.Group>
+                            <Button type="submit"><FormattedMessage id='createRoom.createNewRoom' /></Button>
+                            </fieldset>
+                        </Form>
+                    </Col>
                 )}                
         </Formik>;
     }

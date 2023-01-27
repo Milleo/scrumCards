@@ -46,7 +46,7 @@ function App(){
     }
     
     useEffect(() => {
-        if(user.userName == "" && cookies.userName != ""){
+        if(user.userName == "" && cookies.userName != "" && ("userName" in cookies)){
             axios.get(`/api/users/${cookies.userName}`)
             .then((res) => {
                 setUser({

@@ -76,7 +76,7 @@ function App(){
                             selectedLanguage={ language }
                             toggleTheme={ toggleTheme }
                             user={ user } />
-                        <Container fluid className="flex-fill d-flex">
+                        <Container className="flex-fill d-flex">
                             <Switch>
                                 <Route exact path="/"><Main /></Route>
                                 <Route path="/newRoom"><CreateRoom /></Route>
